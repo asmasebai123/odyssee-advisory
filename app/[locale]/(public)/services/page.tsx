@@ -48,7 +48,7 @@ export default function ServicesPage() {
                 </div>
                 <CardTitle>Structuration Fiscale</CardTitle>
                 <CardDescription className="mt-4 text-base leading-relaxed">
-                  Conseil sur la structuration de l'acquisition (en nom propre, via une société offshore ou Freezone) selon votre situation de résident fiscal français ou émirati.
+                  Conseil sur la structuration de l&apos;acquisition (en nom propre, via une société offshore ou Freezone) selon votre situation de résident fiscal français ou émirati.
                 </CardDescription>
               </CardHeader>
             </Card>

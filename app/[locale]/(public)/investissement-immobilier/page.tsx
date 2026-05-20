@@ -11,7 +11,7 @@ export default function InvestissementPage() {
       <main className="flex-1 py-20">
         <div className="container max-w-4xl">
           <h1 className="font-display text-4xl md:text-5xl font-bold text-sidebar-deep mb-6">
-            L'Investissement Immobilier à Dubaï
+            L&apos;Investissement Immobilier à Dubaï
           </h1>
           <p className="text-xl text-text-muted mb-12">
             Comprendre le marché, le cadre légal et les opportunités pour investir sereinement.
@@ -24,24 +24,24 @@ export default function InvestissementPage() {
 
           <div className="space-y-8 text-text-muted text-lg leading-relaxed">
             <p>
-              Le marché immobilier de Dubaï est particulièrement dynamique et attractif, offrant des rendements locatifs élevés et une fiscalité avantageuse (absence d'impôt sur les revenus fonciers et sur la plus-value).
+              Le marché immobilier de Dubaï est particulièrement dynamique et attractif, offrant des rendements locatifs élevés et une fiscalité avantageuse (absence d&apos;impôt sur les revenus fonciers et sur la plus-value).
             </p>
             
             <h3 className="font-display text-2xl font-semibold text-sidebar-deep mt-10">Le Cadre Légal (RERA & DLD)</h3>
             <p>
-              Le Dubai Land Department (DLD) et la Real Estate Regulatory Agency (RERA) encadrent strictement les transactions. Lors d'un achat sur plan (Off-Plan), les fonds doivent obligatoirement être versés sur un compte séquestre (Escrow Account) lié au projet.
+              Le Dubai Land Department (DLD) et la Real Estate Regulatory Agency (RERA) encadrent strictement les transactions. Lors d&apos;un achat sur plan (Off-Plan), les fonds doivent obligatoirement être versés sur un compte séquestre (Escrow Account) lié au projet.
             </p>
 
             <h3 className="font-display text-2xl font-semibold text-sidebar-deep mt-10">Pourquoi se faire accompagner ?</h3>
             <p>
-              Malgré ce cadre protecteur, de nombreux investisseurs non-résidents se heurtent à la barrière de la langue, à l'agressivité commerciale de certains intermédiaires, et à la complexité des contrats (SPA). Notre rôle est de rééquilibrer la relation de force avec le promoteur et d'assurer une due diligence complète.
+              Malgré ce cadre protecteur, de nombreux investisseurs non-résidents se heurtent à la barrière de la langue, à l&apos;agressivité commerciale de certains intermédiaires, et à la complexité des contrats (SPA). Notre rôle est de rééquilibrer la relation de force avec le promoteur et d&apos;assurer une due diligence complète.
             </p>
           </div>
 
           <div className="mt-16 rounded-2xl bg-beige-soft p-8 text-center border border-border-soft">
             <h3 className="font-display text-2xl font-semibold text-sidebar-deep mb-4">Prêt à sécuriser votre projet ?</h3>
             <p className="text-text-muted mb-6">
-              Contactez-nous pour une première consultation d'évaluation de votre projet immobilier.
+              Contactez-nous pour une première consultation d&apos;évaluation de votre projet immobilier.
             </p>
             <Link href="/contact">
               <Button size="lg">Demander une consultation</Button>

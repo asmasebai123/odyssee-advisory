@@ -29,10 +29,10 @@ export default function MentionsLegalesPage() {
 
             <h2 className="font-display text-2xl font-semibold text-sidebar-deep mt-8 mb-4">3. Avertissement Légal</h2>
             <p>
-              Les informations fournies sur ce site le sont à titre purement indicatif et pédagogique. Elles ne sauraient constituer un conseil juridique personnalisé ni une offre d'investissement avec garantie de rendement.
+              Les informations fournies sur ce site le sont à titre purement indicatif et pédagogique. Elles ne sauraient constituer un conseil juridique personnalisé ni une offre d&apos;investissement avec garantie de rendement.
             </p>
             <p>
-              Odyssée Advisory agit strictement en tant que cabinet de conseil juridique et stratégique, et n'exerce pas d'activité de courtage immobilier ou d'agence immobilière.
+              Odyssée Advisory agit strictement en tant que cabinet de conseil juridique et stratégique, et n&apos;exerce pas d&apos;activité de courtage immobilier ou d&apos;agence immobilière.
             </p>
           </div>
         </div>
