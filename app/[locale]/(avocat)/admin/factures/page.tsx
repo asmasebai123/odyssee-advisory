@@ -446,7 +446,7 @@ export default function LawyerFacturesPage(): React.ReactElement {
               </div>
 
               <div className="input-wrap">
-                <label>Date d'Échéance</label>
+                <label>Date d&apos;Échéance</label>
                 <input
                   type="date"
                   value={dateEcheance}

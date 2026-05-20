@@ -193,7 +193,7 @@ export default function DossierPage(): React.ReactElement {
         <Navbar title="Mon dossier" breadcrumb="Espace client" />
         <div style={{ padding: 60, textAlign: "center", color: "var(--ink-2)" }}>
           <h3>Aucun dossier actif pour le moment.</h3>
-          <p style={{ marginTop: 10, fontSize: 14 }}>Un avocat associé procède à l'ouverture de votre compte.</p>
+          <p style={{ marginTop: 10, fontSize: 14 }}>Un avocat associé procède à l&apos;ouverture de votre compte.</p>
         </div>
       </>
     );

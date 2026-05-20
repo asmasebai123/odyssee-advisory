@@ -386,7 +386,7 @@ export default function FacturesPage(): React.ReactElement {
               {paidInvoices.length === 0 && (
                 <tr>
                   <td colSpan={6} style={{ textAlign: "center", padding: 20, color: "var(--ink-3)" }}>
-                    Aucun paiement enregistré pour l'instant.
+                    Aucun paiement enregistré pour l&apos;instant.
                   </td>
                 </tr>
               )}
