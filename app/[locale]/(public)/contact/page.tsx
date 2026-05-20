@@ -17,7 +17,7 @@ export default function ContactPage() {
                 Contactez-nous
               </h1>
               <p className="text-lg text-text-muted mb-8">
-                Vous avez un projet d'investissement à Dubaï ou vous souhaitez sécuriser une transaction en cours ? Laissez-nous vos coordonnées, nous vous recontacterons dans les 24h.
+                Vous avez un projet d&apos;investissement à Dubaï ou vous souhaitez sécuriser une transaction en cours ? Laissez-nous vos coordonnées, nous vous recontacterons dans les 24h.
               </p>
               
               <div className="space-y-6">

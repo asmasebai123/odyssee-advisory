@@ -16,28 +16,28 @@ export default function ExpertisesPage() {
           </h1>
           <div className="prose prose-lg text-text-muted">
             <p className="lead text-xl text-text mb-10">
-              L'investissement immobilier international requiert une maîtrise globale des enjeux juridiques et fiscaux, tant dans le pays d'origine que dans le pays d'investissement.
+              L&apos;investissement immobilier international requiert une maîtrise globale des enjeux juridiques et fiscaux, tant dans le pays d&apos;origine que dans le pays d&apos;investissement.
             </p>
             
             <div className="space-y-12">
               <div className="border-l-2 border-gold pl-6">
                 <h3 className="font-display text-2xl font-semibold text-sidebar-deep mb-3">Droit Fiscal International</h3>
                 <p>
-                  Compréhension des conventions fiscales préventives de double imposition (notamment France-EAU). Analyse de l'impact de l'investissement sur votre fiscalité globale (IR, IFI) et stratégies de rapatriement des revenus.
+                  Compréhension des conventions fiscales préventives de double imposition (notamment France-EAU). Analyse de l&apos;impact de l&apos;investissement sur votre fiscalité globale (IR, IFI) et stratégies de rapatriement des revenus.
                 </p>
               </div>
 
               <div className="border-l-2 border-gold pl-6">
                 <h3 className="font-display text-2xl font-semibold text-sidebar-deep mb-3">Droit des Affaires & Sociétés</h3>
                 <p>
-                  Accompagnement dans la création de structures d'investissement (Freezone, Mainland, Offshore) adaptées à l'acquisition immobilière commerciale ou résidentielle, incluant la rédaction de pactes d'actionnaires.
+                  Accompagnement dans la création de structures d&apos;investissement (Freezone, Mainland, Offshore) adaptées à l&apos;acquisition immobilière commerciale ou résidentielle, incluant la rédaction de pactes d&apos;actionnaires.
                 </p>
               </div>
 
               <div className="border-l-2 border-gold pl-6">
                 <h3 className="font-display text-2xl font-semibold text-sidebar-deep mb-3">Droit des Contrats & Immobilier</h3>
                 <p>
-                  Sécurisation des transactions via l'analyse méticuleuse des contrats (MOU, SPA). Vérification des garanties de bonne fin d'achèvement et des clauses suspensives.
+                  Sécurisation des transactions via l&apos;analyse méticuleuse des contrats (MOU, SPA). Vérification des garanties de bonne fin d&apos;achèvement et des clauses suspensives.
                 </p>
               </div>
             </div>
