@@ -1,0 +1,35 @@
+import { NextResponse } from "next/server";
+
+export async function GET() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+
+  try {
+    const res = await fetch(`${supabaseUrl}/rest/v1/`, {
+      headers: {
+        "apikey": supabaseServiceKey,
+        "Accept": "application/openapi+json"
+      }
+    });
+
+    if (!res.ok) {
+      return NextResponse.json({ error: `Fetch failed: ${res.statusText}` });
+    }
+
+    const schema = await res.json();
+    
+    // Extraire les infos de la table 'users'
+    const usersTableDef = schema.definitions?.users;
+    
+    return NextResponse.json({
+      usersColumns: usersTableDef?.properties ? Object.keys(usersTableDef.properties) : [],
+      usersDefinition: usersTableDef,
+      fullSchemaInfo: schema.info,
+      // Rechercher les liaisons ou descriptions
+      paths: Object.keys(schema.paths || {}).filter(p => p.includes("users"))
+    });
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message });
+  }
+}

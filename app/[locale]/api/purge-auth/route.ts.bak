@@ -1,0 +1,48 @@
+import { NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
+
+export async function GET() {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+
+  if (!supabaseUrl || !supabaseServiceKey) {
+    return NextResponse.json({ error: "Missing keys in .env.local" }, { status: 500 });
+  }
+
+  const supabase = createClient(supabaseUrl, supabaseServiceKey);
+  const results: any[] = [];
+
+  try {
+    // 1. Lister tous les utilisateurs d'Auth
+    const { data: authUsersList, error: listError } = await supabase.auth.admin.listUsers();
+    if (listError) {
+      return NextResponse.json({ error: "List users error: " + listError.message }, { status: 500 });
+    }
+
+    const testEmails = ["client@test.com", "avocat@test.com"];
+    const targetUsers = authUsersList?.users?.filter(u => u.email && testEmails.includes(u.email)) || [];
+
+    if (targetUsers.length === 0) {
+      return NextResponse.json({ message: "Aucun utilisateur de test à purger dans Auth GoTrue." });
+    }
+
+    // 2. Supprimer chaque utilisateur de GoTrue
+    for (const u of targetUsers) {
+      const { error: delError } = await supabase.auth.admin.deleteUser(u.id);
+      results.push({
+        email: u.email,
+        id: u.id,
+        status: delError ? "FAILED" : "SUCCESS",
+        error: delError ? delError.message : null
+      });
+    }
+
+    return NextResponse.json({
+      message: "Purge terminée",
+      results: results
+    });
+
+  } catch (err: any) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
+  }
+}
