@@ -1,17 +1,17 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { adminGuard } from "@/lib/admin-guard";
+import { requireAvocat } from "@/lib/auth-guard";
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 /**
  * GET /api/admin/clients — Récupère tous les clients avec leurs dossiers associés.
- * Utilisé par la page Clients du cabinet pour contourner les restrictions RLS.
+ * Réservé au cabinet (session + rôle avocat). Contourne RLS via service_role.
  */
 export async function GET(request: NextRequest) {
-  const blocked = adminGuard(request);
-  if (blocked) return blocked;
+  const guard = await requireAvocat(request);
+  if (!guard.ok) return guard.response;
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;

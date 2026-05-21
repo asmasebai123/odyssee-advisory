@@ -18,6 +18,7 @@ const NAV: NavItem[] = [
   { href: "/admin", label: "Dossiers", icon: "folder", badge: 12 },
   { href: "/clients", label: "Clients", icon: "users" },
   { href: "/admin/factures", label: "Facturation", icon: "invoice" },
+  { href: "/admin/journal", label: "Journal d'audit", icon: "clock" },
   { href: "/admin/parametres", label: "Paramètres", icon: "settings" },
 ];
 

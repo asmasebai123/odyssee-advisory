@@ -380,7 +380,7 @@ export default function LawyerFacturesPage(): React.ReactElement {
                 onClick={() => setIsModalOpen(false)}
                 style={{ background: "none", border: "none", cursor: "pointer", color: "var(--ink-3)" }}
               >
-                <Icon name="close" size={20} />
+                <Icon name="x" size={20} />
               </button>
             </div>
 

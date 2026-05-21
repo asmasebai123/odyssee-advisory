@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
       },
     },
     global: {
-      fetch: (url, options) => fetch(url, { ...options, cache: 'no-store' }),
+      fetch: (url: RequestInfo | URL, options?: RequestInit) => fetch(url, { ...options, cache: 'no-store' }),
     },
   });
 
@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
   // 2. Initialiser le client privilégié service_role
   const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
     global: {
-      fetch: (url, options) => fetch(url, { ...options, cache: 'no-store' }),
+      fetch: (url: RequestInfo | URL, options?: RequestInit) => fetch(url, { ...options, cache: 'no-store' }),
     },
   });
 

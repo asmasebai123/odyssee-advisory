@@ -1,16 +1,16 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { adminGuard } from "@/lib/admin-guard";
+import { requireAvocat } from "@/lib/auth-guard";
 import { sendDossierCreatedEmail } from "@/lib/resend";
 
 /**
  * POST /api/admin/create-client — crée un nouvel utilisateur client dans Supabase Auth,
  * insère son profil, crée son dossier et son premier document requis de manière atomique.
- * Exécuté avec la clé SERVICE_ROLE pour contourner les politiques RLS.
+ * Réservé au cabinet (session + rôle avocat). Contourne RLS via service_role.
  */
 export async function POST(request: NextRequest) {
-  const blocked = adminGuard(request);
-  if (blocked) return blocked;
+  const guard = await requireAvocat(request);
+  if (!guard.ok) return guard.response;
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
   const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;

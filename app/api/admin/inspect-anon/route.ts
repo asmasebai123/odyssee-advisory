@@ -1,7 +1,15 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { adminGuard } from "@/lib/admin-guard";
 
+/**
+ * GET /api/admin/inspect-anon — diagnostic RLS via la clé anon.
+ * Protégé par adminGuard (header x-admin-secret en production).
+ */
 export async function GET(request: NextRequest) {
+  const blocked = adminGuard(request);
+  if (blocked) return blocked;
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 

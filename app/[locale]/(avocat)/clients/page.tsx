@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Navbar } from "@/components/layout/Navbar";
 import { Icon } from "@/components/shared/Icon";
 import { StatusBadge, type StatusKey } from "@/components/shared/StatusBadge";
-import { createBrowserClient } from "@supabase/ssr";
+import { NewClientModal } from "@/components/admin/NewClientModal";
 import { useParams } from "next/navigation";
 
 export default function ClientsListPage(): React.ReactElement {
@@ -14,28 +14,24 @@ export default function ClientsListPage(): React.ReactElement {
 
   const [clients, setClients] = React.useState<any[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
+  const [showNewClient, setShowNewClient] = React.useState(false);
 
-  const supabase = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
-
-  React.useEffect(() => {
-    async function loadData() {
-      try {
-        const res = await fetch("/api/admin/clients");
-        const resData = await res.json();
-        if (resData.success && resData.clients && resData.clients.length > 0) {
-          setClients(resData.clients);
-          setIsLoading(false);
-          return;
-        }
-      } catch (e) {
-        console.error("Failed to load clients via API:", e);
+  const loadData = React.useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch("/api/admin/clients?t=" + Date.now(), { cache: "no-store" });
+      const resData = await res.json();
+      if (resData.success && resData.clients && resData.clients.length > 0) {
+        setClients(resData.clients);
+        setIsLoading(false);
+        return;
       }
+    } catch (e) {
+      console.error("Failed to load clients via API:", e);
+    }
 
-      // Fallback
-      setClients([
+    // Fallback
+    setClients([
         {
           id: "mock-client-id",
           email: "client@test.com",
@@ -57,10 +53,12 @@ export default function ClientsListPage(): React.ReactElement {
           ]
         }
       ]);
-      setIsLoading(false);
-    }
+    setIsLoading(false);
+  }, []);
+
+  React.useEffect(() => {
     loadData();
-  }, [supabase]);
+  }, [loadData]);
 
   const getClientStatus = (dossiers: any[]): StatusKey => {
     if (!dossiers || dossiers.length === 0) return "nouveau";
@@ -128,7 +126,10 @@ export default function ClientsListPage(): React.ReactElement {
                   }}
                 />
               </div>
-              <button className="btn btn-sm btn-primary">
+              <button
+                className="btn btn-sm btn-primary"
+                onClick={() => setShowNewClient(true)}
+              >
                 <Icon name="plus" size={12} /> Nouveau client
               </button>
             </div>
@@ -195,6 +196,14 @@ export default function ClientsListPage(): React.ReactElement {
           </table>
         </div>
       </div>
+
+      <NewClientModal
+        open={showNewClient}
+        onClose={() => setShowNewClient(false)}
+        onCreated={() => {
+          loadData();
+        }}
+      />
     </>
   );
 }

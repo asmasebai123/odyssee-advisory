@@ -145,7 +145,7 @@ export default function DocumentsPage(): React.ReactElement {
       const bucketName = 'documents';
       const fileName = `clients/${dossierId}/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_')}`;
 
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from(bucketName)
         .upload(fileName, file, { upsert: false });
 
@@ -155,8 +155,8 @@ export default function DocumentsPage(): React.ReactElement {
         return;
       }
 
-      const { data: publicUrlData } = supabase.storage.from(bucketName).getPublicUrl(fileName);
-
+      // Bucket privé : on stocke le CHEMIN, pas une URL publique.
+      // Le téléchargement passera par /api/documents/download (URL signée).
       const res = await fetch("/api/client/dossier", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -164,7 +164,7 @@ export default function DocumentsPage(): React.ReactElement {
           action: "upload-document",
           payload: {
             nom: file.name,
-            url: publicUrlData.publicUrl,
+            url: fileName,
             type: tab
           }
         })
@@ -207,7 +207,7 @@ export default function DocumentsPage(): React.ReactElement {
       const bucketName = 'documents';
       const fileName = `clients/${dossierId}/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_')}`;
 
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from(bucketName)
         .upload(fileName, file, { upsert: false });
 
@@ -217,8 +217,7 @@ export default function DocumentsPage(): React.ReactElement {
         return;
       }
 
-      const { data: publicUrlData } = supabase.storage.from(bucketName).getPublicUrl(fileName);
-
+      // Bucket privé : on stocke le CHEMIN, pas une URL publique.
       const res = await fetch("/api/client/dossier", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -227,7 +226,7 @@ export default function DocumentsPage(): React.ReactElement {
           payload: {
             documentId: reqDoc.id,
             nom: file.name,
-            url: publicUrlData.publicUrl,
+            url: fileName,
             type: reqDoc.type || "autre"
           }
         })
@@ -252,7 +251,7 @@ export default function DocumentsPage(): React.ReactElement {
     size: "Document",
     date: new Date(d.created_at).toLocaleDateString(),
     status: d.signe ? "signe" : "telecharge" as any,
-    url: d.url
+    docId: d.id
   }));
 
   return (
@@ -431,9 +430,7 @@ export default function DocumentsPage(): React.ReactElement {
           }}
         >
           {list.map((d, i) => (
-            <a key={i} href={d.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit' }}>
-              <FileCard doc={d as any} />
-            </a>
+            <FileCard key={i} doc={d as any} />
           ))}
 
           {/* Drag and drop Upload Zone */}

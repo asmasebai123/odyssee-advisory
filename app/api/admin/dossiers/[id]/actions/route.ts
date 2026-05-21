@@ -1,19 +1,19 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { adminGuard } from "@/lib/admin-guard";
+import { requireAvocat } from "@/lib/auth-guard";
 import { sendDocumentRequestedEmail, sendDossierStatusChangedEmail } from "@/lib/resend";
 
 /**
  * POST /api/admin/dossiers/[id]/actions — Effectue des actions administratives sur un dossier
- * (création de facture, demande de document, modification de statut) sous service_role
- * pour contourner les politiques RLS.
+ * (création de facture, demande de document, modification de statut).
+ * Réservé au cabinet (session + rôle avocat). Contourne RLS via service_role.
  */
 export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const blocked = adminGuard(request);
-  if (blocked) return blocked;
+  const guard = await requireAvocat(request);
+  if (!guard.ok) return guard.response;
 
   const dossierId = params.id;
   if (!dossierId) {
@@ -34,6 +34,21 @@ export async function POST(
   }
 
   const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+  // Journal d'audit (§6.2.4) — best-effort, n'interrompt jamais l'action.
+  const logAudit = async (auditAction: string, detail: string) => {
+    try {
+      await supabase.from("audit_log").insert({
+        dossier_id: dossierId,
+        acteur_id: guard.userId ?? null,
+        acteur_label: "Cabinet",
+        action: auditAction,
+        detail,
+      });
+    } catch (e) {
+      console.error("audit_log insert failed:", e);
+    }
+  };
 
   try {
     const body = await request.json();
@@ -64,6 +79,8 @@ export async function POST(
         });
 
       if (error) throw new Error("Facture insert error: " + error.message);
+
+      await logAudit("facture_emise", `Facture de ${Number(montant)} € émise.`);
 
       return NextResponse.json({
         success: true,
@@ -119,6 +136,8 @@ export async function POST(
         console.error("Failed to send document request email:", emailErr);
       }
 
+      await logAudit("document_demande", `Pièce demandée au client : « ${nom.trim()} ».`);
+
       return NextResponse.json({
         success: true,
         message: "Demande de document ajoutée avec succès."
@@ -168,6 +187,8 @@ export async function POST(
       } catch (emailErr) {
         console.error("Failed to send status update email:", emailErr);
       }
+
+      await logAudit("statut_change", `Statut du dossier passé à « ${statut} ».`);
 
       return NextResponse.json({
         success: true,

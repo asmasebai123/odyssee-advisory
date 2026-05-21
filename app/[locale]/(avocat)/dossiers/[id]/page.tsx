@@ -256,7 +256,7 @@ export default function LawyerDossierPage(): React.ReactElement {
     setStatus(newStatus);
     setStatusOpen(false);
     if (dossierId.startsWith("mock") || dossierId === "mock-dossier-id") {
-      setDossier(prev => prev ? { ...prev, statut: newStatus } : null);
+      setDossier((prev: any) => prev ? { ...prev, statut: newStatus } : null);
       return;
     }
     

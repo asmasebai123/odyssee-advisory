@@ -1,20 +1,20 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { adminGuard } from "@/lib/admin-guard";
+import { requireAvocat } from "@/lib/auth-guard";
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 /**
- * GET /api/admin/dossiers/[id] — Récupère les détails complets d'un dossier (dossier, client, documents, factures)
- * sous service_role pour contourner les restrictions RLS dans l'espace cabinet.
+ * GET /api/admin/dossiers/[id] — Récupère les détails complets d'un dossier (dossier, client, documents, factures).
+ * Réservé au cabinet (session + rôle avocat). Contourne RLS via service_role.
  */
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const blocked = adminGuard(request);
-  if (blocked) return blocked;
+  const guard = await requireAvocat(request);
+  if (!guard.ok) return guard.response;
 
   const dossierId = params.id;
   if (!dossierId) {
