@@ -65,12 +65,13 @@ export async function requireAvocat(
   } = await supabaseSession.auth.getUser();
 
   if (user) {
-    const { data: profile } = await supabaseAdmin
+    const { data: profileData } = await supabaseAdmin
       .from("users")
       .select("role")
       .eq("id", user.id)
       .single();
 
+    const profile = profileData as { role?: string } | null;
     if (profile?.role === "avocat") {
       return { ok: true, userId: user.id, supabaseAdmin };
     }

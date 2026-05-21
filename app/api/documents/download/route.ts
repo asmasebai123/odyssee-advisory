@@ -54,11 +54,18 @@ export async function GET(request: NextRequest) {
   // 2. Charger le document + le dossier associé (service_role, bypass RLS)
   const supabaseAdmin = createClient<Database>(url, serviceKey);
 
-  const { data: doc, error: docError } = await supabaseAdmin
+  const { data: docData, error: docError } = await supabaseAdmin
     .from("documents")
     .select("id, url, nom, dossier_id")
     .eq("id", documentId)
     .single();
+
+  const doc = docData as {
+    id: string;
+    url: string | null;
+    nom: string | null;
+    dossier_id: string;
+  } | null;
 
   if (docError || !doc) {
     return NextResponse.json(
@@ -68,20 +75,22 @@ export async function GET(request: NextRequest) {
   }
 
   // 3. Autorisation : avocat OU client propriétaire du dossier
-  const { data: profile } = await supabaseAdmin
+  const { data: profileData } = await supabaseAdmin
     .from("users")
     .select("role")
     .eq("id", user.id)
     .single();
 
+  const profile = profileData as { role?: string } | null;
   const isAvocat = profile?.role === "avocat";
 
   if (!isAvocat) {
-    const { data: dossier } = await supabaseAdmin
+    const { data: dossierData } = await supabaseAdmin
       .from("dossiers")
       .select("client_id")
       .eq("id", doc.dossier_id)
       .single();
+    const dossier = dossierData as { client_id: string } | null;
     if (!dossier || dossier.client_id !== user.id) {
       return NextResponse.json(
         { success: false, error: "Accès refusé à ce document." },

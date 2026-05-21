@@ -95,12 +95,13 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
       }
     } else {
       // Fallback table users
-      const { data: profile } = await supabase
+      const { data: profileData } = await supabase
         .from("users")
         .select("role")
         .eq("id", user.id)
         .single();
 
+      const profile = profileData as { role?: string } | null;
       if (!profile) {
         if (isAvocatRoute) {
           const redirectUrl = request.nextUrl.clone();
@@ -133,12 +134,13 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
           redirectUrl.pathname = `/${locale}/dashboard`;
         }
       } else {
-        const { data: profile } = await supabase
+        const { data: profileData } = await supabase
           .from("users")
           .select("role")
           .eq("id", user.id)
           .single();
 
+        const profile = profileData as { role?: string } | null;
         if (profile?.role === "avocat") {
           redirectUrl.pathname = `/${locale}/admin`;
         } else {
