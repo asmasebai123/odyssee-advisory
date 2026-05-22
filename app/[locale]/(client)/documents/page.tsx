@@ -5,7 +5,8 @@ import { Navbar } from "@/components/layout/Navbar";
 import { Icon } from "@/components/shared/Icon";
 import { FileCard, type FileCardDoc } from "@/components/documents/FileCard";
 import { createBrowserClient } from "@supabase/ssr";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
+import { SignatureModal } from "@/components/documents/SignatureModal";
 
 interface Tab {
   id: string;
@@ -21,10 +22,59 @@ const TABS: Tab[] = [
 
 export default function DocumentsPage(): React.ReactElement {
   const router = useRouter();
+  const params = useParams();
+  const locale = (params?.locale as string) || "fr";
   const [tab, setTab] = React.useState<string>("contrat");
   const [docs, setDocs] = React.useState<any[]>([]);
   const [dossierId, setDossierId] = React.useState<string | null>(null);
   const [isUploading, setIsUploading] = React.useState(false);
+  const [activeSignDoc, setActiveSignDoc] = React.useState<{ id: string; name: string } | null>(null);
+  const [isSigning, setIsSigning] = React.useState(false);
+
+  const handleSignDocument = (docId: string) => {
+    const doc = docs.find(d => d.id === docId);
+    if (doc) {
+      setActiveSignDoc({ id: docId, name: doc.nom });
+    }
+  };
+
+  const confirmSignature = async (fullName: string) => {
+    if (!activeSignDoc || !dossierId) return;
+    setIsSigning(true);
+
+    const docId = activeSignDoc.id;
+
+    if (dossierId === "mock-dossier-id") {
+      setDocs(prev => prev.map(d => d.id === docId ? { ...d, signe: true } : d));
+      setActiveSignDoc(null);
+      setIsSigning(false);
+      alert(`Document "${activeSignDoc.name}" signé numériquement avec succès par ${fullName} (Mode Démo) !`);
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/client/dossier", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "sign-document",
+          payload: { documentId: docId }
+        })
+      });
+      const resData = await res.json();
+      if (!resData.success) {
+        alert("Erreur lors de la signature : " + resData.error);
+      } else {
+        alert(`Document "${activeSignDoc.name}" signé numériquement avec succès par ${fullName} !`);
+        setActiveSignDoc(null);
+        await loadDocuments();
+      }
+    } catch (err: any) {
+      alert("Erreur réseau : " + err.message);
+    } finally {
+      setIsSigning(false);
+    }
+  };
 
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -214,7 +264,8 @@ export default function DocumentsPage(): React.ReactElement {
     size: "Document",
     date: new Date(d.created_at).toLocaleDateString(),
     status: d.signe ? "signe" : "telecharge" as any,
-    docId: d.id
+    docId: d.id,
+    sign: !d.signe
   }));
 
   return (
@@ -228,7 +279,7 @@ export default function DocumentsPage(): React.ReactElement {
 
       <div className="page-fade page-pad">
         {/* Signature banner */}
-        {list.some(d => d.status === "en-attente") && (
+        {list.some(d => d.sign) && (
           <div
             style={{
               background: "var(--gold)",
@@ -393,7 +444,7 @@ export default function DocumentsPage(): React.ReactElement {
           }}
         >
           {list.map((d, i) => (
-            <FileCard key={i} doc={d as any} />
+            <FileCard key={i} doc={d as any} onSign={handleSignDocument} />
           ))}
 
           {/* Drag and drop Upload Zone */}
@@ -444,6 +495,14 @@ export default function DocumentsPage(): React.ReactElement {
           </label>
         </div>
       </div>
+
+      <SignatureModal
+        isOpen={activeSignDoc !== null}
+        documentName={activeSignDoc?.name || ""}
+        onClose={() => setActiveSignDoc(null)}
+        onConfirm={confirmSignature}
+        isSubmitting={isSigning}
+      />
     </>
   );
 }

@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { Navbar } from "@/components/layout/Navbar";
 import { Icon } from "@/components/shared/Icon";
 import { Stepper } from "@/components/shared/Stepper";
@@ -17,6 +18,8 @@ const STEPS = DOSSIER_STATUT_ORDER;
 const LABELS = STEPS.map((s) => DOSSIER_STATUT_LABEL[s]);
 
 export default function ClientDashboardPage(): React.ReactElement {
+  const params = useParams();
+  const locale = (params?.locale as string) || "fr";
   const [user, setUser] = React.useState<any>(null);
   const [dossier, setDossier] = React.useState<any>(null);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -60,7 +63,7 @@ export default function ClientDashboardPage(): React.ReactElement {
         id: "mock-client-id",
         email: "client@test.com",
         nom: "Dupont",
-        prenom: "Jean",
+        prenom: "Pierre",
         role: "client",
         telephone: "+33 6 12 34 56 78",
         langue: "fr"
@@ -68,7 +71,7 @@ export default function ClientDashboardPage(): React.ReactElement {
       setDossier({
         id: "mock-dossier-id",
         client_id: "mock-client-id",
-        titre: "Emaar Beachfront Palace - Apt. 4204",
+        titre: "Marina Gate Tower 2, Dubai Marina",
         type_service: "Acquisition Immobilière - Dubaï",
         montant: 3420000,
         statut: "en_cours",
@@ -178,30 +181,30 @@ export default function ClientDashboardPage(): React.ReactElement {
             >
               {dossier ? `Dossier #${dossier.id.split('-')[0].toUpperCase()}` : "Aucun dossier actif"}
             </div>
-            <h1 style={{ fontSize: 30, color: "#FFFFFF", marginBottom: 8 }}>
-              Bonjour <span style={{ fontStyle: "italic", color: "var(--gold-soft)" }}>{user?.prenom || "Client"}</span>,
+            <h1 style={{ fontSize: 32, color: "var(--ink)", marginBottom: 8, fontWeight: 500, fontFamily: "var(--serif)", letterSpacing: "-0.02em" }}>
+              Bonjour <span className="gold-italic">{user?.prenom || "Client"}</span>,
             </h1>
             <p
               style={{
-                color: "rgba(255,245,220,0.78)",
-                fontSize: 14,
+                color: "var(--ink-2)",
+                fontSize: 14.5,
                 maxWidth: 540,
                 lineHeight: 1.7,
               }}
             >
               {dossier ? (
-                <>Votre dossier d&apos;acquisition <strong style={{ color: "#FFFFFF" }}>{dossier.titre}</strong> est actuellement au statut : {LABELS[current]}.</>
+                <>Votre dossier d&apos;acquisition à <strong style={{ color: "var(--ink)", fontWeight: 700 }}>{dossier.titre}</strong> est en cours de finalisation. Le notaire local a validé les pièces cette semaine — signature prévue le 24 mai.</>
               ) : (
                 "Vous n'avez pas encore de dossier. Un avocat vous contactera sous peu."
               )}
             </p>
             <div style={{ marginTop: 22, display: "flex", gap: 12 }}>
-              <Link href="/dossier" className="btn btn-primary">
+              <Link href={`/${locale}/dossier`} className="btn btn-primary" style={{ borderRadius: 999, padding: "12px 24px" }}>
                 Voir mon dossier
                 <Icon name="arrow-right" size={14} />
               </Link>
-              <Link href="/messagerie" className="btn btn-ghost-gold">
-                <Icon name="message" size={14} />
+              <Link href={`/${locale}/messagerie`} className="btn btn-secondary" style={{ borderRadius: 999, padding: "12px 24px", borderColor: "var(--gold-line)" }}>
+                <Icon name="message" size={14} style={{ color: "var(--gold)" }} />
                 Contacter Maître Debuisson
               </Link>
             </div>
@@ -332,7 +335,7 @@ export default function ClientDashboardPage(): React.ReactElement {
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 <Link
-                  href="/documents"
+                  href={`/${locale}/documents`}
                   className="btn btn-primary"
                   style={{
                     justifyContent: "space-between",
@@ -359,7 +362,7 @@ export default function ClientDashboardPage(): React.ReactElement {
                   )}
                 </Link>
                 <Link
-                  href="/factures"
+                  href={`/${locale}/factures`}
                   className="btn btn-secondary"
                   style={{
                     justifyContent: "space-between",
@@ -374,7 +377,7 @@ export default function ClientDashboardPage(): React.ReactElement {
                   <Icon name="arrow-right" size={14} style={{ color: "var(--ink-3)" }} />
                 </Link>
                 <Link
-                  href="/messagerie?sujet=rendez-vous"
+                  href={`/${locale}/messagerie?sujet=rendez-vous`}
                   className="btn btn-secondary"
                   style={{
                     justifyContent: "space-between",
@@ -389,7 +392,7 @@ export default function ClientDashboardPage(): React.ReactElement {
                   <Icon name="arrow-right" size={14} style={{ color: "var(--ink-3)" }} />
                 </Link>
                 <Link
-                  href="/documents"
+                  href={`/${locale}/documents`}
                   className="btn btn-secondary"
                   style={{
                     justifyContent: "space-between",
@@ -484,7 +487,7 @@ export default function ClientDashboardPage(): React.ReactElement {
                 appellerai jeudi en fin de journée pour le brief final.&quot;
               </p>
               <Link
-                href="/messagerie"
+                href={`/${locale}/messagerie`}
                 className="btn btn-primary"
                 style={{ width: "100%", justifyContent: "center" }}
               >

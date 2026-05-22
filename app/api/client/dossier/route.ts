@@ -326,6 +326,40 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true });
     }
 
+    if (action === "sign-document") {
+      const { documentId } = payload;
+      if (!documentId) {
+        return NextResponse.json(
+          { success: false, error: "documentId obligatoire." },
+          { status: 400 }
+        );
+      }
+
+      // Verify document belongs to client's dossier before updating
+      const { data: doc } = await supabaseAdmin
+        .from("documents")
+        .select("dossier_id")
+        .eq("id", documentId)
+        .single();
+
+      if (!doc || doc.dossier_id !== dossier.id) {
+        return NextResponse.json(
+          { success: false, error: "Document introuvable ou accès non autorisé." },
+          { status: 403 }
+        );
+      }
+
+      const { error } = await supabaseAdmin
+        .from("documents")
+        .update({ signe: true })
+        .eq("id", documentId);
+
+      if (error) throw new Error("Document signature error: " + error.message);
+
+      return NextResponse.json({ success: true });
+    }
+
+
     if (action === "pay-invoice") {
       const { invoiceId } = payload;
       if (!invoiceId) {

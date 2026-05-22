@@ -263,7 +263,9 @@ export default function DossierPage(): React.ReactElement {
               style={{
                 fontSize: 36,
                 marginBottom: 6,
-                letterSpacing: "-0.01em",
+                letterSpacing: "-0.02em",
+                fontFamily: "var(--serif)",
+                fontWeight: 500,
               }}
             >
               {dossier.titre}

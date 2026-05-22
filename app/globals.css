@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -64,10 +66,10 @@
   --radius-sm: 10px;
   --radius-pill: 999px;
 
-  --display: var(--font-display), "Plus Jakarta Sans", "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
-  --sans: var(--font-sans), "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
-  --serif: var(--font-display), "Plus Jakarta Sans", "Inter", -apple-system, sans-serif;
-  --accent-italic: "Cormorant Garamond", "Plus Jakarta Sans", serif;
+  --display: "Plus Jakarta Sans", var(--font-display), "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  --sans: "Inter", var(--font-sans), -apple-system, BlinkMacSystemFont, sans-serif;
+  --serif: "Cormorant Garamond", var(--font-serif), Georgia, serif;
+  --accent-italic: "Cormorant Garamond", var(--font-serif), Georgia, serif;
   --mono: "JetBrains Mono", ui-monospace, monospace;
 }
 
@@ -95,7 +97,7 @@ h2,
 h3,
 h4,
 h5 {
-  font-family: var(--display);
+  font-family: var(--display) !important;
   font-weight: 700;
   letter-spacing: -0.02em;
   margin: 0;
@@ -108,11 +110,11 @@ h1 {
 
 /* Accent italique or */
 .gold-italic {
-  font-family: var(--accent-italic);
-  font-style: italic;
-  font-weight: 500;
-  color: var(--gold);
-  letter-spacing: 0;
+  font-family: var(--accent-italic) !important;
+  font-style: italic !important;
+  font-weight: 500 !important;
+  color: var(--gold) !important;
+  letter-spacing: 0 !important;
 }
 
 button {
@@ -284,17 +286,15 @@ a {
   border-color: var(--border) !important;
 }
 
-/* Bannière hero — espresso riche + lueur dorée (point focal vif). */
+/* Bannière hero — Crème de luxe et accents dorés/expresso (inspiré de la maquette). */
 .hero-card {
   position: relative;
   overflow: hidden;
   border-radius: var(--radius);
-  background:
-    radial-gradient(ellipse at 88% 15%, rgba(201, 162, 106, 0.28), transparent 55%),
-    linear-gradient(135deg, #2D1F16 0%, #221710 55%, #1A110C 100%);
-  color: #FFFFFF;
-  border: 1px solid var(--gold-line);
-  box-shadow: 0 4px 10px rgba(40, 25, 10, 0.18), 0 18px 40px rgba(40, 25, 10, 0.22);
+  background: var(--cream, #FFFCF5);
+  color: var(--ink);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-card);
 }
 /* fine ligne dorée en haut pour l'éclat */
 .hero-card::before {
@@ -305,7 +305,7 @@ a {
   right: 0;
   height: 2px;
   background: linear-gradient(to right, transparent, var(--gold), transparent);
-  opacity: 0.7;
+  opacity: 0.4;
 }
 
 /* Inputs */

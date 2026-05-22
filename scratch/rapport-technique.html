@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rapport Technique — Odyssée Advisory Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ═══════════════════════════════════════════════
+       Base & Variables
+    ═══════════════════════════════════════════════ */
+    :root {
+      --gold: #C9A26A;
+      --gold-deep: #AE8853;
+      --ink: #2F2418;
+      --ink-2: #685749;
+      --ink-3: #A99784;
+      --bg: #FCFAF5;
+      --beige: #F7F2E6;
+      --cream: #FFFCF5;
+      --bar: #221710;
+      --border: #E8DCC8;
+      --serif: 'Cormorant Garamond', Georgia, serif;
+      --sans: 'Inter', -apple-system, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 11pt;
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ═══════════════════════════════════════════════
+       Page Layout
+    ═══════════════════════════════════════════════ */
+    .page {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 0;
+    }
+
+    @media print {
+      html, body { background: white; }
+      .no-print { display: none !important; }
+      .page-break { page-break-before: always; }
+      .section { break-inside: avoid; }
+    }
+
+    /* ═══════════════════════════════════════════════
+       Cover Page
+    ═══════════════════════════════════════════════ */
+    .cover {
+      background: var(--bar);
+      color: white;
+      min-height: 297mm;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 64px 72px;
+      position: relative;
+      overflow: hidden;
+      page-break-after: always;
+    }
+
+    .cover::before {
+      content: '';
+      position: absolute;
+      right: -80px;
+      top: -80px;
+      width: 420px;
+      height: 420px;
+      border-radius: 50%;
+      border: 1px solid rgba(201,162,106,0.18);
+    }
+    .cover::after {
+      content: '';
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      width: 280px;
+      height: 280px;
+      border-radius: 50%;
+      border: 1px solid rgba(201,162,106,0.10);
+    }
+
+    .cover-logo {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .monogram {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), var(--gold-deep));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--serif);
+      font-size: 22px;
+      font-weight: 600;
+      color: white;
+      letter-spacing: -0.02em;
+      flex-shrink: 0;
+    }
+    .logo-text {
+      display: flex;
+      flex-direction: column;
+    }
+    .logo-name {
+      font-family: var(--serif);
+      font-size: 20px;
+      font-weight: 500;
+      color: white;
+      letter-spacing: 0.02em;
+    }
+    .logo-sub {
+      font-size: 9px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: rgba(255,245,220,0.5);
+      font-weight: 500;
+    }
+
+    .cover-body {
+      position: relative;
+      z-index: 1;
+    }
+    .cover-tag {
+      font-size: 9pt;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+    .cover-title {
+      font-family: var(--serif);
+      font-size: 52pt;
+      font-weight: 400;
+      line-height: 1.1;
+      color: white;
+      letter-spacing: -0.02em;
+      margin-bottom: 12px;
+    }
+    .cover-title em {
+      color: var(--gold);
+      font-style: italic;
+    }
+    .cover-subtitle {
+      font-size: 13pt;
+      color: rgba(255,245,220,0.65);
+      font-weight: 300;
+      max-width: 480px;
+      line-height: 1.6;
+      margin-bottom: 40px;
+    }
+    .cover-divider {
+      width: 60px;
+      height: 2px;
+      background: linear-gradient(to right, var(--gold), transparent);
+      margin-bottom: 32px;
+    }
+    .cover-meta {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+    }
+    .meta-item label {
+      display: block;
+      font-size: 8pt;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,245,220,0.45);
+      margin-bottom: 4px;
+    }
+    .meta-item span {
+      font-size: 11pt;
+      color: rgba(255,245,220,0.85);
+      font-weight: 500;
+    }
+
+    .cover-footer {
+      position: relative;
+      z-index: 1;
+      border-top: 1px solid rgba(255,245,220,0.1);
+      padding-top: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .cover-footer span {
+      font-size: 9pt;
+      color: rgba(255,245,220,0.35);
+      letter-spacing: 0.06em;
+    }
+    .confidential-badge {
+      padding: 5px 12px;
+      border: 1px solid rgba(201,162,106,0.35);
+      border-radius: 999px;
+      font-size: 8pt;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 600;
+    }
+
+    /* ═══════════════════════════════════════════════
+       Content Pages
+    ═══════════════════════════════════════════════ */
+    .content {
+      padding: 64px 72px;
+    }
+
+    /* Section header */
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 32px;
+      margin-top: 48px;
+    }
+    .section-header:first-child { margin-top: 0; }
+
+    .section-number {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--bar);
+      color: var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--serif);
+      font-size: 14pt;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    .section-title {
+      font-family: var(--serif);
+      font-size: 22pt;
+      font-weight: 500;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+
+    /* Sub-sections */
+    .subsection {
+      margin-bottom: 28px;
+    }
+    .subsection-title {
+      font-size: 10.5pt;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--gold-deep);
+      margin-bottom: 10px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* Cards */
+    .card-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    .card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 18px 20px;
+    }
+    .card-title {
+      font-weight: 700;
+      font-size: 10.5pt;
+      color: var(--ink);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .card-title .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--gold);
+      flex-shrink: 0;
+    }
+    .card p {
+      font-size: 9.5pt;
+      color: var(--ink-2);
+      line-height: 1.6;
+    }
+
+    /* Module badge */
+    .module-badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 8pt;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .badge-client { background: #EFF6FF; color: #1D4ED8; }
+    .badge-admin  { background: #FEF3C7; color: #92400E; }
+    .badge-public { background: #F0FDF4; color: #166534; }
+    .badge-api    { background: #FDF4FF; color: #7E22CE; }
+    .badge-infra  { background: #FFF1F2; color: #9F1239; }
+
+    /* Feature list */
+    .feature-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+    .feature-list li {
+      padding: 7px 0;
+      border-bottom: 1px solid var(--beige);
+      font-size: 10pt;
+      color: var(--ink-2);
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .feature-list li:last-child { border-bottom: none; }
+    .feature-list li::before {
+      content: '→';
+      color: var(--gold);
+      font-weight: 700;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .feature-list li strong {
+      color: var(--ink);
+    }
+
+    /* Workflow steps */
+    .workflow {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin: 16px 0;
+    }
+    .workflow-step {
+      display: flex;
+      gap: 20px;
+      position: relative;
+    }
+    .workflow-step::before {
+      content: '';
+      position: absolute;
+      left: 17px;
+      top: 36px;
+      width: 2px;
+      height: calc(100% - 12px);
+      background: var(--border);
+    }
+    .workflow-step:last-child::before { display: none; }
+
+    .step-indicator {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .step-num {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--bar);
+      color: var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12pt;
+      font-weight: 700;
+      font-family: var(--serif);
+    }
+    .step-body {
+      padding-bottom: 28px;
+      flex: 1;
+    }
+    .step-title {
+      font-weight: 700;
+      font-size: 11pt;
+      color: var(--ink);
+      margin-bottom: 4px;
+      margin-top: 7px;
+    }
+    .step-desc {
+      font-size: 9.5pt;
+      color: var(--ink-2);
+      line-height: 1.65;
+    }
+    .step-url {
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 8.5pt;
+      color: var(--gold-deep);
+      background: var(--beige);
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      font-weight: 600;
+    }
+
+    /* Tech stack table */
+    .tech-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 10pt;
+      margin: 12px 0;
+    }
+    .tech-table th {
+      background: var(--bar);
+      color: rgba(255,245,220,0.85);
+      padding: 10px 14px;
+      text-align: left;
+      font-size: 8.5pt;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .tech-table th:first-child { border-radius: 8px 0 0 8px; }
+    .tech-table th:last-child  { border-radius: 0 8px 8px 0; }
+    .tech-table td {
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--ink-2);
+      vertical-align: top;
+    }
+    .tech-table tr:last-child td { border-bottom: none; }
+    .tech-table td:first-child { font-weight: 600; color: var(--ink); }
+
+    /* Credentials box */
+    .cred-box {
+      background: var(--bar);
+      border-radius: 10px;
+      padding: 20px 24px;
+      margin: 16px 0;
+    }
+    .cred-box h4 {
+      font-family: var(--serif);
+      font-size: 13pt;
+      color: var(--gold);
+      margin-bottom: 14px;
+      font-weight: 500;
+    }
+    .cred-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .cred-item {
+      background: rgba(255,245,220,0.05);
+      border: 1px solid rgba(201,162,106,0.2);
+      border-radius: 8px;
+      padding: 12px 16px;
+    }
+    .cred-item label {
+      display: block;
+      font-size: 8pt;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255,245,220,0.4);
+      margin-bottom: 6px;
+    }
+    .cred-item .role {
+      font-size: 10pt;
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 4px;
+    }
+    .cred-item .cred-line {
+      font-size: 9pt;
+      color: rgba(255,245,220,0.7);
+      font-family: 'Courier New', monospace;
+    }
+
+    /* Alert/note box */
+    .note-box {
+      border-left: 3px solid var(--gold);
+      background: #FBF6EB;
+      border-radius: 0 8px 8px 0;
+      padding: 14px 18px;
+      margin: 16px 0;
+      font-size: 10pt;
+      color: var(--ink-2);
+      line-height: 1.65;
+    }
+    .note-box strong { color: var(--ink); }
+
+    /* Architecture diagram */
+    .arch-diagram {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 28px;
+      margin: 16px 0;
+      text-align: center;
+    }
+    .arch-row {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 8px;
+      align-items: center;
+    }
+    .arch-box {
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 9pt;
+      font-weight: 600;
+    }
+    .arch-box.dark { background: var(--bar); color: white; }
+    .arch-box.gold { background: linear-gradient(135deg, var(--gold), var(--gold-deep)); color: white; }
+    .arch-box.light { background: var(--beige); color: var(--ink); border: 1px solid var(--border); }
+    .arch-arrow {
+      color: var(--gold);
+      font-size: 16pt;
+      line-height: 1;
+    }
+    .arch-label {
+      font-size: 8pt;
+      color: var(--ink-3);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin: 6px 0 14px;
+    }
+
+    /* Page number footer */
+    .page-footer {
+      margin-top: 48px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 8.5pt;
+      color: var(--ink-3);
+    }
+    .page-footer .brand {
+      font-family: var(--serif);
+      font-style: italic;
+      color: var(--gold);
+    }
+
+    /* Print button */
+    .print-btn {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      background: var(--bar);
+      color: white;
+      border: none;
+      padding: 14px 24px;
+      border-radius: 999px;
+      font-family: var(--sans);
+      font-size: 11pt;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 24px rgba(34,23,16,0.35);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: transform 0.2s;
+    }
+    .print-btn:hover { transform: scale(1.04); }
+    .print-btn span { color: var(--gold); font-size: 14pt; }
+
+    p { margin-bottom: 10px; }
+    p:last-child { margin-bottom: 0; }
+  </style>
+</head>
+<body>
+
+<!-- ══════════════════════════════
+     COVER PAGE
+══════════════════════════════ -->
+<div class="cover">
+  <div class="cover-logo">
+    <div class="monogram">Ø</div>
+    <div class="logo-text">
+      <div class="logo-name">Odyssée Advisory</div>
+      <div class="logo-sub">Plateforme Juridique · Dubaï</div>
+    </div>
+  </div>
+
+  <div class="cover-body">
+    <div class="cover-tag">Documentation Technique — v1.0</div>
+    <div class="cover-title">
+      Rapport de<br><em>Développement</em>
+    </div>
+    <div class="cover-subtitle">
+      Présentation complète de la plateforme client-avocat : architecture, modules, fonctionnalités, workflow de test et logique technique.
+    </div>
+    <div class="cover-divider"></div>
+    <div class="cover-meta">
+      <div class="meta-item">
+        <label>Projet</label>
+        <span>Odyssée Advisory Platform</span>
+      </div>
+      <div class="meta-item">
+        <label>Date</label>
+        <span>22 Mai 2026</span>
+      </div>
+      <div class="meta-item">
+        <label>Stack</label>
+        <span>Next.js 14 · Supabase</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="cover-footer">
+    <span>odyssee-advisory.com</span>
+    <span class="confidential-badge">Confidentiel</span>
+    <span>Asma Sebai · Développeuse Full-Stack</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     CONTENT
+══════════════════════════════ -->
+<div class="content">
+
+  <!-- ─────────────────────────────────
+       1. VUE D'ENSEMBLE
+  ───────────────────────────────── -->
+  <div class="section-header">
+    <div class="section-number">1</div>
+    <div class="section-title">Vue d'ensemble du projet</div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Contexte & Objectif</div>
+    <p>
+      <strong>Odyssée Advisory</strong> est une plateforme juridique SaaS dédiée aux acquisitions immobilières à Dubaï. Elle connecte les avocats du cabinet avec leurs clients investisseurs au travers d'un portail sécurisé et temps-réel.
+    </p>
+    <p>
+      L'objectif était de créer une application web complète en remplacement d'un workflow papier/email, permettant un suivi des dossiers, la gestion documentaire, la facturation et la communication — le tout dans une interface premium reflétant le positionnement haut de gamme du cabinet.
+    </p>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Architecture Globale</div>
+    <div class="arch-diagram">
+      <div class="arch-row">
+        <div class="arch-box dark">Navigateur Client</div>
+        <div class="arch-arrow">⟷</div>
+        <div class="arch-box dark">Navigateur Avocat</div>
+      </div>
+      <div class="arch-row"><div class="arch-arrow" style="transform:rotate(90deg)">↕</div></div>
+      <div class="arch-row">
+        <div class="arch-box gold">Next.js 14 App Router (SSR + API Routes)</div>
+      </div>
+      <div class="arch-label">Hébergement Vercel · Middleware i18n · Auth Guard</div>
+      <div class="arch-row">
+        <div class="arch-box light">Supabase PostgreSQL</div>
+        <div class="arch-arrow">·</div>
+        <div class="arch-box light">Supabase Storage</div>
+        <div class="arch-arrow">·</div>
+        <div class="arch-box light">Resend (Emails)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Stack Technologique</div>
+    <table class="tech-table">
+      <thead>
+        <tr>
+          <th>Couche</th>
+          <th>Technologie</th>
+          <th>Rôle</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Frontend</td><td>Next.js 14, React 18, TypeScript</td><td>Rendu SSR/SSG, routing App Router, type safety</td></tr>
+        <tr><td>Styling</td><td>Tailwind CSS + CSS Variables custom</td><td>Design système "Light Luxury" (espresso + or + crème)</td></tr>
+        <tr><td>Typographie</td><td>Cormorant Garamond + Inter (via next/font)</td><td>Serif élégant pour titres, sans-serif pour corps</td></tr>
+        <tr><td>Base de données</td><td>Supabase (PostgreSQL)</td><td>Dossiers, documents, utilisateurs, messages, factures</td></tr>
+        <tr><td>Fichiers</td><td>Supabase Storage + API download</td><td>Upload/download documents PDF sécurisés</td></tr>
+        <tr><td>Auth</td><td>Supabase Auth (sessions JWT)</td><td>Login, rôles client/avocat, middleware de protection</td></tr>
+        <tr><td>Emails</td><td>Resend API</td><td>Notifications automatiques (nouveaux docs, actions)</td></tr>
+        <tr><td>Signature</td><td>react-signature-canvas</td><td>Signature électronique des documents</td></tr>
+        <tr><td>i18n</td><td>next-intl</td><td>Internationalisation (FR/EN/AR)</td></tr>
+        <tr><td>Impression PDF</td><td>window.print() + CSS @media print</td><td>Export factures en PDF mis en page</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ─────────────────────────────────
+       2. MODULES & FONCTIONNALITÉS
+  ───────────────────────────────── -->
+  <div class="section-header">
+    <div class="section-number">2</div>
+    <div class="section-title">Modules & Fonctionnalités</div>
+  </div>
+
+  <!-- AUTH -->
+  <div class="subsection">
+    <div class="subsection-title">Module Authentification</div>
+    <span class="module-badge badge-infra">Auth · Infrastructure</span>
+    <div class="card-grid">
+      <div class="card">
+        <div class="card-title"><div class="dot"></div>Connexion sécurisée</div>
+        <p>Page de login avec email + mot de passe, validation côté client, protection CSRF. Redirection intelligente selon le rôle (client → /dashboard, avocat → /admin).</p>
+      </div>
+      <div class="card">
+        <div class="card-title"><div class="dot"></div>Gestion des rôles</div>
+        <p>Deux rôles distincts : <strong>client</strong> (investisseur) et <strong>avocat</strong> (cabinet). Middleware Next.js bloque l'accès aux routes non autorisées.</p>
+      </div>
+      <div class="card">
+        <div class="card-title"><div class="dot"></div>Création de comptes</div>
+        <p>L'avocat crée les comptes clients depuis le tableau de bord admin. Un email automatique Resend envoie les identifiants temporaires au client.</p>
+      </div>
+      <div class="card">
+        <div class="card-title"><div class="dot"></div>Session persistante</div>
+        <p>Sessions JWT Supabase, rafraîchissement automatique. Déconnexion propre via API route /api/logout.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLIENT PORTAL -->
+  <div class="subsection">
+    <div class="subsection-title">Portail Client (Espace Investisseur)</div>
+    <span class="module-badge badge-client">Client · 6 Pages</span>
+
+    <ul class="feature-list">
+      <li><strong>Tableau de bord (/dashboard)</strong> — Vue d'accueil personnalisée avec salutation, statut du dossier actif, progression en 5 étapes (stepper), actions rapides et derniers documents.</li>
+      <li><strong>Mon Dossier (/dossier)</strong> — Vue complète du dossier d'acquisition : timeline des actions, étapes validées, informations propriété, prestation en cours et acteurs impliqués.</li>
+      <li><strong>Documents (/documents)</strong> — Liste de tous les documents associés au dossier. Upload de nouveaux fichiers, téléchargement en PDF direct, signature électronique avec pad de signature, menu contextuel (3 points) avec aperçu/télécharger/signer.</li>
+      <li><strong>Messagerie (/messagerie)</strong> — Chat temps-réel avec l'avocat. Interface de conversation avec fil de messages, timestamp, envoi de nouveaux messages.</li>
+      <li><strong>Factures (/factures)</strong> — Historique des honoraires, statuts (payé/en attente/en retard), téléchargement de chaque facture en PDF imprimable.</li>
+      <li><strong>Paramètres (/parametres)</strong> — Gestion du profil client, préférences de notification, informations personnelles.</li>
+    </ul>
+  </div>
+
+  <!-- AVOCAT PORTAL -->
+  <div class="subsection">
+    <div class="subsection-title">Portail Avocat / Cabinet (Back-office)</div>
+    <span class="module-badge badge-admin">Avocat · 4 Sections</span>
+
+    <ul class="feature-list">
+      <li><strong>Dashboard Admin (/admin/dashboard)</strong> — KPIs en temps réel (dossiers actifs, volume conseillé, honoraires facturés, taux de conversion). Nouvelles demandes entrantes. Dossiers récents. Graphiques et indicateurs visuels.</li>
+      <li><strong>Gestion Dossiers (/admin)</strong> — Vue tableau de tous les dossiers avec filtres par statut. Création de nouveaux dossiers, assignation de clients, suivi d'avancement. Vue détaillée avec timeline complète d'actions.</li>
+      <li><strong>Gestion Clients (/clients)</strong> — Annuaire complet des clients avec création, modification. Envoi d'identifiants par email automatique à la création.</li>
+      <li><strong>Gestion Factures (/factures)</strong> — Création de factures (honoraires, frais, TVA, devise AED/EUR). Impression PDF avec mise en page officielle du cabinet. Suivi des paiements.</li>
+    </ul>
+  </div>
+
+  <!-- DOCUMENTS MODULE DETAIL -->
+  <div class="subsection">
+    <div class="subsection-title">Module Documents — Détail Technique</div>
+    <span class="module-badge badge-api">Full-Stack · Storage</span>
+
+    <ul class="feature-list">
+      <li><strong>Upload</strong> — Formulaire drag-and-drop vers Supabase Storage. Métadonnées (nom, type, statut) stockées en base PostgreSQL.</li>
+      <li><strong>Téléchargement PDF</strong> — API Route <code>/api/documents/[id]/download</code> qui génère une URL signée Supabase (validité 60s) et force le téléchargement avec en-tête <code>Content-Disposition: attachment</code>.</li>
+      <li><strong>Signature électronique</strong> — Modal avec canvas de signature (react-signature-canvas). À la validation, la signature est convertie en image base64 et enregistrée. Le statut du document passe à "Signé" en base.</li>
+      <li><strong>Rendez-vous</strong> — Bouton "Réserver un rendez-vous" qui ouvre un formulaire de demande envoyé à l'avocat via API.</li>
+    </ul>
+  </div>
+
+  <!-- PUBLIC SITE -->
+  <div class="subsection">
+    <div class="subsection-title">Site Public (Vitrine)</div>
+    <span class="module-badge badge-public">Public · 8 Pages</span>
+
+    <ul class="feature-list">
+      <li><strong>Page Services</strong> — Présentation des 4 services principaux du cabinet (acquisition, conseil, due diligence, accompagnement).</li>
+      <li><strong>Expertises</strong> — Détail des domaines d'expertise juridique du cabinet à Dubaï.</li>
+      <li><strong>Honoraires</strong> — Grille tarifaire transparente et présentation des formules d'accompagnement.</li>
+      <li><strong>Investissement Immobilier</strong> — Guide complet de l'investissement immobilier à Dubaï (marché, zones, processus légal).</li>
+      <li><strong>Contact</strong> — Formulaire de contact avec validation, envoi d'email de confirmation.</li>
+      <li><strong>Blog</strong> — Articles juridiques et actualités immobilières Dubaï.</li>
+      <li><strong>Mentions légales & Confidentialité</strong> — Pages légales conformes RGPD.</li>
+    </ul>
+  </div>
+
+  <!-- PAGE BREAK -->
+  <div class="page-break"></div>
+
+  <!-- ─────────────────────────────────
+       3. LOGIQUE & APPROCHE TECHNIQUE
+  ───────────────────────────────── -->
+  <div class="section-header">
+    <div class="section-number">3</div>
+    <div class="section-title">Logique & Approche Technique</div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Sécurité & Protection des Routes</div>
+    <div class="note-box">
+      <strong>Principe :</strong> Chaque groupe de routes est protégé à deux niveaux — le middleware Next.js (vérification JWT côté serveur avant le rendu) et les API Routes (vérification de session à chaque requête API). Un client ne peut jamais accéder aux données d'un autre client.
+    </div>
+    <ul class="feature-list">
+      <li>Le middleware intercepte toutes les requêtes sur <code>/(client)/*</code> et <code>/(avocat)/*</code></li>
+      <li>Chaque API Route vérifie <code>getUser()</code> Supabase avant d'exécuter la requête SQL</li>
+      <li>Les URLs de fichiers Storage sont des URLs signées à durée limitée (60 secondes)</li>
+      <li>Les rôles sont stockés dans la table <code>profiles</code> Supabase et vérifiés côté serveur</li>
+    </ul>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Gestion des États & Data Fetching</div>
+    <ul class="feature-list">
+      <li><strong>SSR (Server-Side Rendering)</strong> — Les pages avocat et client fetchent les données côté serveur avec <code>async/await</code> dans les Server Components, garantissant aucune flash de contenu et un meilleur SEO.</li>
+      <li><strong>Client Components</strong> — Utilisés uniquement pour l'interactivité : signature canvas, upload de fichiers, chat messagerie, menus contextuels.</li>
+      <li><strong>Invalidation de cache</strong> — <code>revalidatePath()</code> après chaque mutation pour rafraîchir les données sans rechargement complet de page.</li>
+      <li><strong>États de chargement</strong> — Skeleton loaders et états disabled sur les boutons pendant les mutations pour un UX fluide.</li>
+    </ul>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Design System "Light Luxury"</div>
+    <ul class="feature-list">
+      <li><strong>Palette</strong> — Fond crème chaud (#FCFAF5), accents or (#C9A26A), barres/sidebar espresso (#221710). Aucun bleu ou couleur générique.</li>
+      <li><strong>Typographie duale</strong> — Cormorant Garamond (serif) pour les titres principaux et l'italique dorée des prénoms. Inter (sans-serif) pour le corps de texte et les interfaces.</li>
+      <li><strong>CSS Variables globales</strong> — Tout le design système dans <code>:root</code> via <code>globals.css</code>. Les composants référencent <code>var(--gold)</code>, <code>var(--ink)</code>, etc. — aucune couleur codée en dur dans les composants.</li>
+      <li><strong>Micro-animations</strong> — Transitions CSS 0.18s sur tous les états hover/active, effet <code>page-fade</code> à l'entrée de page.</li>
+    </ul>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Internationalisation (i18n)</div>
+    <ul class="feature-list">
+      <li>Architecture <code>/[locale]/</code> avec next-intl pour supporter FR, EN, AR (RTL)</li>
+      <li>Fichiers de traduction JSON dans <code>/messages/</code> — tous les textes UI sont externalisés</li>
+      <li>Le middleware next-intl détecte automatiquement la langue du navigateur</li>
+      <li>Direction RTL automatique pour l'arabe via <code>dir={locale === "ar" ? "rtl" : "ltr"}</code></li>
+    </ul>
+  </div>
+
+  <!-- ─────────────────────────────────
+       4. WORKFLOW DE TEST
+  ───────────────────────────────── -->
+  <div class="section-header">
+    <div class="section-number">4</div>
+    <div class="section-title">Workflow de Test Complet</div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Accès à l'Application</div>
+    <div class="cred-box">
+      <h4>Identifiants de Test</h4>
+      <div class="cred-grid">
+        <div class="cred-item">
+          <label>Rôle Avocat / Cabinet</label>
+          <div class="role">Maître Pierre Debuisson</div>
+          <div class="cred-line">Email : pierre@odyssee-advisory.com</div>
+          <div class="cred-line">Accès complet back-office</div>
+        </div>
+        <div class="cred-item">
+          <label>Rôle Client / Investisseur</label>
+          <div class="role">Asma (Client Test)</div>
+          <div class="cred-line">Email : asma@test.com</div>
+          <div class="cred-line">Accès portail client uniquement</div>
+        </div>
+      </div>
+    </div>
+    <div class="note-box">
+      <strong>URL locale :</strong> <code>http://localhost:3000/fr</code> — Le serveur de développement doit être démarré avec <code>npm run dev</code> depuis le répertoire du projet.
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Scénario 1 — Côté Avocat : Créer un dossier client</div>
+    <div class="workflow">
+      <div class="workflow-step">
+        <div class="step-indicator"><div class="step-num">1</div></div>
+        <div class="step-body">
+          <div class="step-title">Se connecter en tant qu'avocat</div>
+          <div class="step-desc">Accéder à la page de connexion et entrer les identifiants avocat. Vérifier la redirection automatique vers le portail cabinet.</div>
+          <span class="step-url">/fr/login</span>
+        </div>
+      </div>
+      <div class="workflow-step">
+        <div class="step-indicator"><div class="step-num">2</div></div>
+        <div class="step-body">
+          <div class="step-title">Consulter le Dashboard Admin</div>
+          <div class="step-desc">Vérifier les KPIs (dossiers actifs, volume, honoraires). Observer les nouvelles demandes entrantes et les dossiers récents.</div>
+          <span class="step-url">/fr/admin/dashboard</span>
+        </div>
+      </div>
+      <div class="workflow-step">
+        <div class="step-indicator"><div class="step-num">3</div></div>
+        <div class="step-body">
+          <div class="step-title">Créer un nouveau client</div>
+          <div class="step-desc">Aller dans Clients → Nouveau client. Remplir le formulaire (prénom, nom, email). L'email d'accès est envoyé automatiquement au client via Resend.</div>
+          <span class="step-url">/fr/clients → bouton "Nouveau client"</span>
+        </div>
+      </div>
+      <div class="workflow-step">
+        <div class="step-indicator"><div class="step-num">4</div></div>
+        <div class="step-body">
+          <div class="step-title">Ouvrir un dossier</div>
+          <div class="step-desc">Aller dans Dossiers → Nouveau dossier. Renseigner le titre, type de bien, type de service et assigner au client créé.</div>
+          <span class="step-url">/fr/admin → bouton "Nouveau dossier"</span>
+        </div>
+      </div>
+      <div class="workflow-step">
+        <div class="step-indicator"><div class="step-num">5</div></div>
+        <div class="step-body">
+          <div class="step-title">Ajouter des documents & créer une facture</div>
+          <div class="step-desc">Dans la vue du dossier, uploader un document (ex: contrat.pdf). Ensuite, créer une facture depuis la section Factures avec montant et description.</div>
+          <span class="step-url">/fr/dossiers/[id] · /fr/factures</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="subsection">
+    <div class="subsection-title">Scénario 2 — Côté Client : Consulter & Signer</div>
+    <div class="workflow">
+      <div class="workflow-step">
+        <div class="step-indicator"><div class="step-num">1</div></div>
+        <div class="step-body">
+          <div class="step-title">Se connecter en tant que client</div>
+          <div class="step-desc">Utiliser les identifiants client. Vérifier la page de bienvenue personnalisée avec le nom du client en Cormorant Garamond doré et le statut du dossier.</div>
+          <span class="step-url">/fr/dashboard</span>
+        </div>
+      </div>
+      <div class="workflow-step">
+        <div class="step-indicator"><div class="step-num">2</div></div>
+        <div class="step-body">
+          <div class="step-title">Consulter son dossier</div>
+          <div class="step-desc">Cliquer sur "Voir mon dossier". Observer la timeline d'avancement, les étapes complétées et les informations de la propriété.</div>
+          <span class="step-url">/fr/dossier</span>
+        </div>
+      </div>
+      <div class="workflow-step">
+        <div class="step-indicator"><div class="step-num">3</div></div>
+        <div class="step-body">
+          <div class="step-title">Gérer les documents</div>
+          <div class="step-desc">Aller dans Documents. Tester : (a) clic sur le menu ⋮ d'un document → Télécharger → vérifier le download PDF direct. (b) Clic sur "Signer" → dessiner une signature sur le canvas → valider. (c) Tester l'upload d'un nouveau fichier.</div>
+          <span class="step-url">/fr/documents</span>
+        </div>
+      </div>
+      <div class="workflow-step">
+        <div class="step-indicator"><div class="step-num">4</div></div>
+        <div class="step-body">
+          <div class="step-title">Envoyer un message</div>
+          <div class="step-desc">Aller dans Messagerie. Vérifier l'historique des messages. Envoyer un nouveau message à l'avocat et vérifier l'envoi.</div>
+          <span class="step-url">/fr/messagerie</span>
+        </div>
+      </div>
+      <div class="workflow-step">
+        <div class="step-indicator"><div class="step-num">5</div></div>
+        <div class="step-body">
+          <div class="step-title">Télécharger une facture</div>
+          <div class="step-desc">Aller dans Factures. Cliquer sur l'icône de téléchargement d'une facture. Vérifier que le PDF s'ouvre dans un nouvel onglet avec la mise en page officielle du cabinet.</div>
+          <span class="step-url">/fr/factures → icône PDF</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────
+       5. API ROUTES
+  ───────────────────────────────── -->
+  <div class="section-header">
+    <div class="section-number">5</div>
+    <div class="section-title">API Routes & Backend</div>
+  </div>
+
+  <table class="tech-table">
+    <thead>
+      <tr>
+        <th>Endpoint</th>
+        <th>Méthode</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>/api/auth/login</td><td>POST</td><td>Authentification Supabase, retourne session JWT</td></tr>
+      <tr><td>/api/logout</td><td>POST</td><td>Invalidation de session, redirection /login</td></tr>
+      <tr><td>/api/admin/create-client</td><td>POST</td><td>Crée compte Supabase Auth + profil + envoi email Resend</td></tr>
+      <tr><td>/api/admin/dossiers</td><td>GET/POST</td><td>Liste dossiers ou création nouveau dossier</td></tr>
+      <tr><td>/api/admin/dossiers/[id]/actions</td><td>POST</td><td>Ajoute une action/événement à la timeline du dossier</td></tr>
+      <tr><td>/api/admin/factures</td><td>GET/POST</td><td>Liste ou création de factures</td></tr>
+      <tr><td>/api/admin/dashboard-stats</td><td>GET</td><td>Agrège les KPIs pour le dashboard avocat (dossiers, volume, honoraires)</td></tr>
+      <tr><td>/api/documents/[id]/download</td><td>GET</td><td>Génère URL signée Supabase Storage, force téléchargement PDF</td></tr>
+      <tr><td>/api/client</td><td>GET</td><td>Récupère profil du client connecté + son dossier actif</td></tr>
+      <tr><td>/api/dossiers/[id]</td><td>GET/PATCH</td><td>Détail du dossier et mise à jour du statut</td></tr>
+      <tr><td>/api/notifications</td><td>GET/POST</td><td>Notifications système (nouveaux docs, actions requises)</td></tr>
+      <tr><td>/api/factures/[id]</td><td>GET</td><td>Détail d'une facture pour la vue d'impression PDF</td></tr>
+    </tbody>
+  </table>
+
+  <!-- ─────────────────────────────────
+       6. POINTS D'ATTENTION
+  ───────────────────────────────── -->
+  <div class="section-header">
+    <div class="section-number">6</div>
+    <div class="section-title">Points d'Attention & Évolutions</div>
+  </div>
+
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-title"><div class="dot"></div>Emails Resend</div>
+      <p>Les emails de création de compte sont opérationnels. En environnement de test, vérifier que la clé API Resend est présente dans <code>.env.local</code>.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><div class="dot"></div>Stockage de fichiers</div>
+      <p>Les fichiers sont uploadés dans Supabase Storage. Le bucket <code>documents</code> doit être configuré avec les bonnes policies RLS en production.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><div class="dot"></div>Signature légale</div>
+      <p>La signature électronique actuelle est fonctionnelle pour le MVP. Pour une valeur légale certifiée, intégrer un prestataire qualifié (eIDAS) en phase 2.</p>
+    </div>
+    <div class="card">
+      <div class="card-title"><div class="dot"></div>Évolutions prévues</div>
+      <p>Prise de RDV avec calendrier intégré (Calendly/Cal.com), notifications push, espace client multilingue complet, intégration paiement en ligne.</p>
+    </div>
+  </div>
+
+  <div class="note-box">
+    <strong>Note sur les polices :</strong> La typographie utilise deux polices chargées via <code>next/font/google</code> pour un rendu optimisé sans FOUC. <em>Cormorant Garamond</em> (serif) pour les titres et l'italique dorée des prénoms, <em>Inter</em> pour le corps de texte. Le design system complet est centralisé dans <code>app/globals.css</code>.
+  </div>
+
+  <!-- Footer -->
+  <div class="page-footer">
+    <span>Odyssée Advisory Platform · Rapport Technique v1.0</span>
+    <span class="brand">par Asma Sebai</span>
+    <span>Mai 2026</span>
+  </div>
+
+</div>
+
+<!-- Print button -->
+<button class="print-btn no-print" onclick="window.print()">
+  <span>⎙</span> Imprimer / Enregistrer en PDF
+</button>
+
+</body>
+</html>

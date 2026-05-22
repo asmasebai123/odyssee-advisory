@@ -327,18 +327,19 @@ export default function LawyerDashboardPage(): React.ReactElement {
             </div>
             <h1
               style={{
-                fontSize: 28,
-                color: "#FFFFFF",
-                fontWeight: 600,
+                fontSize: 32,
+                color: "var(--ink)",
+                fontWeight: 500,
+                fontFamily: "var(--serif)",
                 letterSpacing: "-0.02em",
               }}
             >
-              Bonjour <span style={{ fontStyle: "italic", color: "var(--gold-soft)" }}>Pierre</span>
+              Bonjour <span className="gold-italic">Pierre</span>,
             </h1>
             <p
               style={{
-                color: "rgba(255,245,220,0.78)",
-                fontSize: 14,
+                color: "var(--ink-2)",
+                fontSize: 14.5,
                 marginTop: 8,
                 maxWidth: 600,
                 lineHeight: 1.6,
@@ -348,8 +349,8 @@ export default function LawyerDashboardPage(): React.ReactElement {
             </p>
           </div>
           <div style={{ display: "flex", gap: 10, position: "relative", zIndex: 1 }}>
-            <Link href={`/${locale}/admin`} className="btn btn-ghost-gold">
-              <Icon name="folder" size={14} /> Voir les dossiers
+            <Link href={`/${locale}/admin`} className="btn btn-secondary" style={{ borderRadius: 999, borderColor: "var(--gold-line)" }}>
+              <Icon name="folder" size={14} style={{ color: "var(--gold)" }} /> Voir les dossiers
             </Link>
           </div>
         </div>
