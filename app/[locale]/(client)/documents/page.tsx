@@ -141,37 +141,18 @@ export default function DocumentsPage(): React.ReactElement {
     }
 
     try {
-      // Use the `documents` bucket that is configured in Supabase
-      const bucketName = 'documents';
-      const fileName = `clients/${dossierId}/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_')}`;
+      // Upload côté serveur (service_role) → contourne les policies Storage.
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("type", tab);
 
-      const { error: uploadError } = await supabase.storage
-        .from(bucketName)
-        .upload(fileName, file, { upsert: false });
-
-      if (uploadError) {
-        alert("Erreur lors de l'envoi du fichier de stockage : " + uploadError.message);
-        setIsUploading(false);
-        return;
-      }
-
-      // Bucket privé : on stocke le CHEMIN, pas une URL publique.
-      // Le téléchargement passera par /api/documents/download (URL signée).
-      const res = await fetch("/api/client/dossier", {
+      const res = await fetch("/api/client/documents/upload", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "upload-document",
-          payload: {
-            nom: file.name,
-            url: fileName,
-            type: tab
-          }
-        })
+        body: formData,
       });
       const resData = await res.json();
       if (!resData.success) {
-        alert("Erreur lors de l'enregistrement en base de données : " + resData.error);
+        alert("Erreur lors de l'envoi du document : " + resData.error);
       } else {
         await loadDocuments();
       }
@@ -203,37 +184,19 @@ export default function DocumentsPage(): React.ReactElement {
     }
 
     try {
-      // Use the `documents` bucket that is configured in Supabase
-      const bucketName = 'documents';
-      const fileName = `clients/${dossierId}/${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.\-_]/g, '_')}`;
+      // Upload côté serveur (service_role) → contourne les policies Storage.
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("documentId", reqDoc.id);
+      formData.append("type", reqDoc.type || "autre");
 
-      const { error: uploadError } = await supabase.storage
-        .from(bucketName)
-        .upload(fileName, file, { upsert: false });
-
-      if (uploadError) {
-        alert("Erreur lors de l'envoi du fichier : " + uploadError.message);
-        setIsUploading(false);
-        return;
-      }
-
-      // Bucket privé : on stocke le CHEMIN, pas une URL publique.
-      const res = await fetch("/api/client/dossier", {
+      const res = await fetch("/api/client/documents/upload", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "upload-document",
-          payload: {
-            documentId: reqDoc.id,
-            nom: file.name,
-            url: fileName,
-            type: reqDoc.type || "autre"
-          }
-        })
+        body: formData,
       });
       const resData = await res.json();
       if (!resData.success) {
-        alert("Erreur lors de l'enregistrement : " + resData.error);
+        alert("Erreur lors de l'envoi du document : " + resData.error);
       } else {
         await loadDocuments();
       }

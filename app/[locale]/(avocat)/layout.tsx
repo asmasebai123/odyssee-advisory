@@ -12,7 +12,7 @@ export default function AvocatLayout({
   return (
     <div className="app-shell">
       <AvocatSidebar />
-      <main style={{ background: "var(--bg-light)", minWidth: 0 }}>
+      <main style={{ background: "var(--bg-app)", minWidth: 0 }}>
         {children}
       </main>
     </div>

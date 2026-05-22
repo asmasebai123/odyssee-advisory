@@ -15,39 +15,41 @@ const config: Config = {
     },
     extend: {
       colors: {
-        // Brand palette — Odyssée Advisory
-        background: "#FAF8F3", // warm ivory — main bg
+        // Brand palette — Odyssée Advisory (light luxury / espresso)
+        background: "#FCFAF5", // near-white warm canvas
         card: "#FFFFFF",
-        surface: "#F0EBE0", // warm beige
-        beige: "#F0E8D6",
-        "beige-soft": "#F7F0E0",
+        surface: "#F7F2E6", // warm beige
+        beige: "#F7F2E6",
+        "beige-soft": "#FBF6EB",
+        cream: "#FFFCF5",
         gold: {
-          DEFAULT: "#B8965A",
-          hover: "#A07840",
-          soft: "#C9A86B",
-          dim: "rgba(184, 150, 90, 0.14)",
-          line: "rgba(184, 150, 90, 0.32)",
+          DEFAULT: "#C9A26A",
+          hover: "#AE8853",
+          deep: "#AE8853",
+          soft: "#DDC196",
+          dim: "rgba(201, 162, 106, 0.10)",
+          line: "rgba(201, 162, 106, 0.22)",
         },
         sidebar: {
-          DEFAULT: "#2C3E5C", // steel blue
-          alt: "#364A6B",
-          deep: "#233149",
-          text: "#8FA8C8", // muted blue inactive
-          textAlt: "#9AB1CE",
+          DEFAULT: "#221710", // espresso
+          alt: "#2D1F16",
+          deep: "#1F1611",
+          text: "#A99784", // muted warm inactive
+          textAlt: "#C9A26A",
         },
         text: {
-          DEFAULT: "#2C2C2C",
-          muted: "#555555",
-          subtle: "#8C8275",
+          DEFAULT: "#2F2418",
+          muted: "#685749",
+          subtle: "#A99784",
         },
         ink: {
-          DEFAULT: "#2C2C2C",
-          2: "#555555",
-          3: "#8C8275",
+          DEFAULT: "#2F2418",
+          2: "#685749",
+          3: "#A99784",
         },
         border: {
-          DEFAULT: "#E8E2D8",
-          soft: "#EFE7D2",
+          DEFAULT: "#F1E8D2",
+          soft: "#F6EFDE",
           dark: "rgba(255,255,255,0.10)",
         },
         success: "#2D7A4F",

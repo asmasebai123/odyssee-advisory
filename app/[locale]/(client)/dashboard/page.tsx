@@ -133,7 +133,7 @@ export default function ClientDashboardPage(): React.ReactElement {
       <div className="page-fade page-pad">
         {/* Welcome banner */}
         <div
-          className="card-dark card"
+          className="hero-card"
           style={{
             padding: "32px 36px",
             display: "flex",
@@ -178,19 +178,19 @@ export default function ClientDashboardPage(): React.ReactElement {
             >
               {dossier ? `Dossier #${dossier.id.split('-')[0].toUpperCase()}` : "Aucun dossier actif"}
             </div>
-            <h1 style={{ fontSize: 30, color: "white", marginBottom: 8 }}>
-              Bonjour <span style={{ fontStyle: "italic", color: "var(--gold)" }}>{user?.prenom || "Client"}</span>,
+            <h1 style={{ fontSize: 30, color: "#FFFFFF", marginBottom: 8 }}>
+              Bonjour <span style={{ fontStyle: "italic", color: "var(--gold-soft)" }}>{user?.prenom || "Client"}</span>,
             </h1>
             <p
               style={{
-                color: "rgba(255,255,255,0.7)",
+                color: "rgba(255,245,220,0.78)",
                 fontSize: 14,
                 maxWidth: 540,
                 lineHeight: 1.7,
               }}
             >
               {dossier ? (
-                <>Votre dossier d&apos;acquisition <strong>{dossier.titre}</strong> est actuellement au statut : {LABELS[current]}.</>
+                <>Votre dossier d&apos;acquisition <strong style={{ color: "#FFFFFF" }}>{dossier.titre}</strong> est actuellement au statut : {LABELS[current]}.</>
               ) : (
                 "Vous n'avez pas encore de dossier. Un avocat vous contactera sous peu."
               )}
@@ -373,7 +373,8 @@ export default function ClientDashboardPage(): React.ReactElement {
                   </span>
                   <Icon name="arrow-right" size={14} style={{ color: "var(--ink-3)" }} />
                 </Link>
-                <button
+                <Link
+                  href="/messagerie?sujet=rendez-vous"
                   className="btn btn-secondary"
                   style={{
                     justifyContent: "space-between",
@@ -386,7 +387,7 @@ export default function ClientDashboardPage(): React.ReactElement {
                     Réserver un rendez-vous
                   </span>
                   <Icon name="arrow-right" size={14} style={{ color: "var(--ink-3)" }} />
-                </button>
+                </Link>
                 <Link
                   href="/documents"
                   className="btn btn-secondary"

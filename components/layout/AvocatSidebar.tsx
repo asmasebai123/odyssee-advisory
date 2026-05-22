@@ -43,11 +43,11 @@ export const AvocatSidebar: React.FC<AvocatSidebarProps> = ({
   return (
     <aside
       style={{
-        background: "var(--bg-dark)",
+        background: "var(--sidebar-bg)",
         color: "var(--white)",
         display: "flex",
         flexDirection: "column",
-        borderRight: "1px solid rgba(255,255,255,0.04)",
+        borderRight: "1px solid var(--sidebar-line)",
         position: "sticky",
         top: 0,
         height: "100vh",

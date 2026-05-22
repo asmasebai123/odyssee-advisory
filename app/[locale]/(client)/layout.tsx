@@ -13,7 +13,7 @@ export default function ClientLayout({
   return (
     <div className="app-shell">
       <ClientSidebar />
-      <main style={{ background: "var(--bg-light)", minWidth: 0 }}>
+      <main style={{ background: "var(--bg-app)", minWidth: 0 }}>
         {children}
       </main>
     </div>

@@ -65,10 +65,21 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
     page = segments[2] || "";
   }
 
+  // Routes partagées (avocat ET client) : ex. impression d'une facture
+  // /factures/<id>/imprimer — on exige juste une session, pas un rôle précis.
+  const isSharedRoute = page === "factures" && segments.includes("print");
+
   // Define route categories
-  const isClientRoute = ["dashboard", "documents", "dossier", "factures", "messagerie", "parametres"].includes(page);
+  const isClientRoute = !isSharedRoute && ["dashboard", "documents", "dossier", "factures", "messagerie", "parametres"].includes(page);
   const isAvocatRoute = ["admin", "clients", "dossiers"].includes(page);
   const isAuthRoute = ["login", "register"].includes(page);
+
+  // Route partagée : exiger seulement l'authentification
+  if (isSharedRoute && !user) {
+    const redirectUrl = request.nextUrl.clone();
+    redirectUrl.pathname = `/${locale}/login`;
+    return NextResponse.redirect(redirectUrl);
+  }
 
   // Enforce access control
   if (isClientRoute || isAvocatRoute) {

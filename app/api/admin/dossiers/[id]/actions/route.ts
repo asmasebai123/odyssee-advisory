@@ -62,7 +62,7 @@ export async function POST(
     }
 
     if (action === "create-invoice") {
-      const { montant } = payload;
+      const { montant, reference, libelle, date_emission, date_echeance } = payload;
       if (!montant || isNaN(Number(montant))) {
         return NextResponse.json(
           { success: false, error: "Montant valide obligatoire." },
@@ -70,21 +70,37 @@ export async function POST(
         );
       }
 
+      // Generate reference if not provided
+      const invoiceRef = reference || `FAC-${Date.now().toString(36).toUpperCase()}`;
+
+      // Build the libelle — can be a JSON string (structured detail) or plain text
+      const invoiceLibelle = typeof libelle === "object"
+        ? JSON.stringify(libelle)
+        : (libelle || "Honoraires de conseil");
+
+      const emissionDate = date_emission || new Date().toISOString().split("T")[0];
+      const echeanceDate = date_echeance || new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+
       const { error } = await supabase
         .from("factures")
         .insert({
           dossier_id: dossierId,
+          reference: invoiceRef,
+          libelle: invoiceLibelle,
           montant: Number(montant),
-          statut: "impayee"  // valeur imposée par la contrainte CHECK de Supabase
+          statut: "impayee",
+          date_emission: emissionDate,
+          date_echeance: echeanceDate,
         });
 
       if (error) throw new Error("Facture insert error: " + error.message);
 
-      await logAudit("facture_emise", `Facture de ${Number(montant)} € émise.`);
+      await logAudit("facture_emise", `Facture ${invoiceRef} de ${Number(montant)} € émise.`);
 
       return NextResponse.json({
         success: true,
-        message: "Facture émise avec succès."
+        message: "Facture émise avec succès.",
+        reference: invoiceRef,
       });
     }
 

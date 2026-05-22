@@ -30,6 +30,10 @@ export default function AdminDashboardPage() {
   const [kpis, setKpis] = React.useState({ actifs: 0, attente: 0, cloture: 0, totalMontant: 0 });
   const [isLoading, setIsLoading] = React.useState(true);
 
+  // Deletion state
+  const [dossierToDelete, setDossierToDelete] = React.useState<Dossier | null>(null);
+  const [isDeleting, setIsDeleting] = React.useState(false);
+
   // Search & Filter
   const [searchTerm, setSearchTerm] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState<string>("all");
@@ -90,12 +94,12 @@ export default function AdminDashboardPage() {
 
       setKpis({
         actifs: dossiersList.filter(
-          (d) => d.statut !== "termine"
+          (d) => d.statut !== "cloture"
         ).length,
         attente: dossiersList.filter((d) =>
-          ["demande", "analyse"].includes(d.statut)
+          ["demande", "en_analyse", "pieces_manquantes"].includes(d.statut)
         ).length,
-        cloture: dossiersList.filter((d) => d.statut === "termine").length,
+        cloture: dossiersList.filter((d) => d.statut === "cloture").length,
         totalMontant: totalAmount
       });
     } else {
@@ -234,6 +238,24 @@ export default function AdminDashboardPage() {
       alert(err.message || "Erreur inconnue");
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteDossier = async () => {
+    if (!dossierToDelete) return;
+    setIsDeleting(true);
+    try {
+      const res = await fetch(`/api/admin/dossiers/${dossierToDelete.id}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error || "Erreur de suppression.");
+      setDossierToDelete(null);
+      await loadData();
+    } catch (err: any) {
+      alert(err.message || "Erreur inconnue lors de la suppression.");
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -499,17 +521,33 @@ export default function AdminDashboardPage() {
                       <StatusBadge status={d.statut} />
                     </td>
                     <td style={{ padding: "16px 0" }}>
-                      <Link
-                        href={`/${locale}/dossiers/${d.id}`}
-                        className="btn btn-sm btn-secondary"
-                        style={{
-                          padding: "6px 12px",
-                          fontSize: 12,
-                          display: "inline-flex",
-                        }}
-                      >
-                        Gérer
-                      </Link>
+                      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                        <Link
+                          href={`/${locale}/dossiers/${d.id}`}
+                          className="btn btn-sm btn-secondary"
+                          style={{ padding: "6px 12px", fontSize: 12, display: "inline-flex" }}
+                        >
+                          Gérer
+                        </Link>
+                        <button
+                          onClick={() => setDossierToDelete(d)}
+                          style={{
+                            background: "rgba(220,38,38,0.08)",
+                            border: "1px solid rgba(220,38,38,0.25)",
+                            borderRadius: 4,
+                            color: "#dc2626",
+                            cursor: "pointer",
+                            padding: "6px 8px",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            transition: "all 0.15s",
+                          }}
+                          title="Supprimer ce dossier"
+                        >
+                          <Icon name="x" size={13} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -762,6 +800,101 @@ export default function AdminDashboardPage() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── Modal de confirmation de suppression ── */}
+      {dossierToDelete && (
+        <div
+          style={{
+            position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+            background: "rgba(11, 19, 43, 0.55)",
+            backdropFilter: "blur(6px)",
+            zIndex: 200,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <div
+            className="page-fade"
+            style={{
+              background: "white",
+              borderRadius: 6,
+              padding: 36,
+              width: 460,
+              boxShadow: "0 24px 64px rgba(0,0,0,0.18)",
+              border: "1px solid var(--border)",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "flex-start", gap: 16, marginBottom: 24 }}>
+              <div
+                style={{
+                  width: 44, height: 44, borderRadius: "50%",
+                  background: "rgba(220,38,38,0.1)",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  flexShrink: 0,
+                }}
+              >
+                <Icon name="alert" size={20} style={{ color: "#dc2626" }} />
+              </div>
+              <div>
+                <h3 style={{ fontSize: 17, fontWeight: 700, color: "var(--ink)", marginBottom: 6 }}>
+                  Supprimer ce dossier ?
+                </h3>
+                <p style={{ fontSize: 13, color: "var(--ink-2)", lineHeight: 1.6 }}>
+                  Vous êtes sur le point de supprimer définitivement le dossier{" "}
+                  <strong style={{ color: "var(--ink)" }}>"{dossierToDelete.titre}"</strong>{" "}
+                  {dossierToDelete.client && (
+                    <>
+                      de{" "}
+                      <strong style={{ color: "var(--ink)" }}>
+                        {dossierToDelete.client.prenom} {dossierToDelete.client.nom}
+                      </strong>
+                    </>
+                  )}.
+                  <br />
+                  <span style={{ color: "#dc2626", fontWeight: 600 }}>
+                    Cette action est irréversible
+                  </span>{" "}
+                  et supprimera tous les documents, messages et factures associés.
+                </p>
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: 12 }}>
+              <button
+                onClick={() => setDossierToDelete(null)}
+                className="btn btn-secondary"
+                style={{ flex: 1, justifyContent: "center" }}
+                disabled={isDeleting}
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleDeleteDossier}
+                disabled={isDeleting}
+                style={{
+                  flex: 1,
+                  padding: "11px 20px",
+                  background: isDeleting ? "#fca5a5" : "#dc2626",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 4,
+                  fontSize: 13,
+                  fontWeight: 700,
+                  cursor: isDeleting ? "not-allowed" : "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 8,
+                  transition: "background 0.15s",
+                }}
+              >
+                <Icon name="x" size={13} />
+                {isDeleting ? "Suppression..." : "Supprimer définitivement"}
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -35,7 +35,8 @@ export async function POST(request: NextRequest) {
       titre,
       type_service,
       montant,
-      statut
+      statut,
+      demandeId
     } = body;
 
     if (!email || !nom || !prenom) {
@@ -120,6 +121,17 @@ export async function POST(request: NextRequest) {
         signe: false,
         type: "juridique"
       });
+    }
+
+    // 6. Si demandeId est présent, mettre à jour le statut de la demande à 'transforme'
+    if (demandeId) {
+      const { error: demErr } = await supabase
+        .from("demandes")
+        .update({ statut: "transforme" })
+        .eq("id", demandeId);
+      if (demErr) {
+        console.error("Erreur mise à jour demande (non-fatale):", demErr.message);
+      }
     }
 
     if (dossierData) {

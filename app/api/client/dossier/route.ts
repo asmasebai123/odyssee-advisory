@@ -87,14 +87,15 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // 4. Charger le dernier dossier actif
-    const { data: dossier, error: dosErr } = await supabaseAdmin
+    // 4. Charger TOUS les dossiers du client (le plus récent = dossier "actif")
+    const { data: dossiersList } = await supabaseAdmin
       .from("dossiers")
       .select("*")
       .eq("client_id", user.id)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+      .order("created_at", { ascending: false });
+
+    const dossiers = dossiersList || [];
+    const dossier = dossiers[0] || null;
 
     if (!dossier) {
       return NextResponse.json({
@@ -107,17 +108,20 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // 5. Charger les documents, factures et messages liés à ce dossier
+    // 5. Agréger documents / factures / messages sur TOUS les dossiers du client
+    //    (évite qu'une pièce demandée sur un autre dossier reste invisible)
+    const dossierIds = dossiers.map((d: any) => d.id);
+
     const { data: documents } = await supabaseAdmin
       .from("documents")
       .select("*")
-      .eq("dossier_id", dossier.id)
+      .in("dossier_id", dossierIds)
       .order("created_at", { ascending: false });
 
     const { data: factures } = await supabaseAdmin
       .from("factures")
       .select("*")
-      .eq("dossier_id", dossier.id)
+      .in("dossier_id", dossierIds)
       .order("created_at", { ascending: false });
 
     const { data: messages } = await supabaseAdmin
@@ -130,8 +134,17 @@ export async function GET(request: NextRequest) {
           role
         )
       `)
-      .eq("dossier_id", dossier.id)
+      .in("dossier_id", dossierIds)
       .order("created_at", { ascending: true });
+
+    // 6. Le conseil référent du cabinet (avocat réel en base)
+    const { data: avocat } = await supabaseAdmin
+      .from("users")
+      .select("prenom, nom, email, telephone")
+      .eq("role", "avocat")
+      .order("created_at", { ascending: true })
+      .limit(1)
+      .maybeSingle();
 
     return NextResponse.json({
       success: true,
@@ -139,7 +152,8 @@ export async function GET(request: NextRequest) {
       dossier,
       documents: documents || [],
       factures: factures || [],
-      messages: messages || []
+      messages: messages || [],
+      avocat: avocat || null
     });
 
   } catch (err: any) {

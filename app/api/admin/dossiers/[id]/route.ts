@@ -108,3 +108,58 @@ export async function GET(
     );
   }
 }
+
+/**
+ * DELETE /api/admin/dossiers/[id] — Supprime définitivement un dossier.
+ * Réservé au cabinet (session + rôle avocat). Contourne RLS via service_role.
+ */
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const guard = await requireAvocat(request);
+  if (!guard.ok) return guard.response;
+
+  const dossierId = params.id;
+  if (!dossierId) {
+    return NextResponse.json(
+      { success: false, error: "ID du dossier manquant." },
+      { status: 400 }
+    );
+  }
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+
+  if (!supabaseUrl || !supabaseServiceKey) {
+    return NextResponse.json(
+      { success: false, error: "Missing Supabase keys" },
+      { status: 500 }
+    );
+  }
+
+  const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+  try {
+    const { error } = await supabase
+      .from("dossiers")
+      .delete()
+      .eq("id", dossierId);
+
+    if (error) {
+      throw new Error("Erreur lors de la suppression du dossier : " + error.message);
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "Dossier supprimé avec succès."
+    });
+
+  } catch (err: any) {
+    console.error("ADMIN DOSSIER DELETE RUNTIME ERROR:", err);
+    return NextResponse.json(
+      { success: false, error: err.message || "Unknown error" },
+      { status: 500 }
+    );
+  }
+}

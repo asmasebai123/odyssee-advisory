@@ -21,6 +21,7 @@ export default function LawyerDossierPage(): React.ReactElement {
   const params = useParams();
   const router = useRouter();
   const dossierId = params.id as string;
+  const locale = (params?.locale as string) || "fr";
 
   const [dossier, setDossier] = React.useState<any>(null);
   const [client, setClient] = React.useState<any>(null);
@@ -41,6 +42,7 @@ export default function LawyerDossierPage(): React.ReactElement {
   
   // Factures states
   const [newInvoiceAmount, setNewInvoiceAmount] = React.useState("");
+  const [newInvoiceLibelle, setNewInvoiceLibelle] = React.useState("");
   const [isInvoiceSending, setIsInvoiceSending] = React.useState(false);
   
   // Notes states
@@ -329,16 +331,22 @@ export default function LawyerDossierPage(): React.ReactElement {
 
     const amount = Number(newInvoiceAmount);
 
+    const libelle = newInvoiceLibelle.trim() || "Honoraires de conseil";
+
     if (dossierId.startsWith("mock") || dossierId === "mock-dossier-id") {
       const newInv = {
         id: `mock-inv-${Date.now()}`,
         dossier_id: dossierId,
         montant: amount,
-        statut: "en_attente",
+        libelle,
+        reference: `FAC-${Date.now().toString(36).toUpperCase()}`,
+        statut: "impayee",
+        date_emission: new Date().toISOString().split("T")[0],
         created_at: new Date().toISOString()
       };
       setFactures(prev => [newInv, ...prev]);
       setNewInvoiceAmount("");
+      setNewInvoiceLibelle("");
       setIsInvoiceSending(false);
       return;
     }
@@ -349,7 +357,7 @@ export default function LawyerDossierPage(): React.ReactElement {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           action: "create-invoice",
-          payload: { montant: amount }
+          payload: { montant: amount, libelle }
         })
       });
       const resData = await res.json();
@@ -357,6 +365,7 @@ export default function LawyerDossierPage(): React.ReactElement {
         alert("Erreur lors de l'émission de la facture : " + resData.error);
       } else {
         setNewInvoiceAmount("");
+        setNewInvoiceLibelle("");
         await loadData();
       }
     } catch (err: any) {
@@ -463,24 +472,35 @@ export default function LawyerDossierPage(): React.ReactElement {
                 <div style={{ fontSize: 10.5, letterSpacing: "0.18em", color: "var(--gold)", fontWeight: 700, textTransform: "uppercase", marginBottom: 10 }}>
                   Émettre des honoraires
                 </div>
-                <form onSubmit={handleCreateInvoice} style={{ display: "flex", gap: 10 }}>
+                <form onSubmit={handleCreateInvoice} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   <input
-                    type="number"
-                    value={newInvoiceAmount}
-                    onChange={(e) => setNewInvoiceAmount(e.target.value)}
-                    placeholder="Montant en Euros (ex: 1500)"
+                    type="text"
+                    value={newInvoiceLibelle}
+                    onChange={(e) => setNewInvoiceLibelle(e.target.value)}
+                    placeholder="Libellé (ex : Honoraires conseil — Phase 2)"
                     className="input-line"
-                    style={{ flex: 1, background: "var(--bg-light)", padding: "10px 12px", border: "1px solid var(--border)", fontSize: 13 }}
+                    style={{ background: "var(--bg-light)", padding: "10px 12px", border: "1px solid var(--border)", fontSize: 13 }}
                     disabled={isInvoiceSending}
-                    required
                   />
-                  <button
-                    type="submit"
-                    className="btn btn-primary btn-sm"
-                    disabled={isInvoiceSending || !newInvoiceAmount.trim()}
-                  >
-                    <Icon name="invoice" size={14} /> Émettre
-                  </button>
+                  <div style={{ display: "flex", gap: 10 }}>
+                    <input
+                      type="number"
+                      value={newInvoiceAmount}
+                      onChange={(e) => setNewInvoiceAmount(e.target.value)}
+                      placeholder="Montant € (ex : 1500)"
+                      className="input-line"
+                      style={{ flex: 1, background: "var(--bg-light)", padding: "10px 12px", border: "1px solid var(--border)", fontSize: 13 }}
+                      disabled={isInvoiceSending}
+                      required
+                    />
+                    <button
+                      type="submit"
+                      className="btn btn-primary btn-sm"
+                      disabled={isInvoiceSending || !newInvoiceAmount.trim()}
+                    >
+                      <Icon name="invoice" size={14} /> Émettre
+                    </button>
+                  </div>
                 </form>
                 <div style={{ marginTop: 14, fontSize: 12, color: "var(--ink-3)", paddingTop: 12, borderTop: "1px solid var(--border)", display: "flex", justifyContent: "space-between" }}>
                   <span>Factures émises</span>
@@ -503,14 +523,29 @@ export default function LawyerDossierPage(): React.ReactElement {
                       </div>
                       <div>
                         <span style={{ fontSize: 14, fontWeight: 700, color: "var(--ink)" }}>{fac.montant.toLocaleString('fr-FR')} €</span>
+                        <div style={{ fontSize: 12, color: "var(--ink-2)", marginTop: 2 }}>{fac.libelle || "Honoraires de conseil"}</div>
                         <div style={{ fontSize: 11, color: "var(--ink-3)", marginTop: 2 }}>
-                          Réf : {fac.id.startsWith("mock") ? `INV-2026-00${idx+1}` : fac.id.split("-")[0].toUpperCase()} · Créée le {new Date(fac.created_at).toLocaleDateString()}
+                          Réf : {fac.reference || (fac.id.startsWith("mock") ? `INV-2026-00${idx+1}` : fac.id.split("-")[0].toUpperCase())} · Émise le {new Date(fac.date_emission || fac.created_at).toLocaleDateString('fr-FR')}
                         </div>
                       </div>
                     </div>
-                    <span className={`badge ${fac.statut === "payee" ? "badge-success" : "badge-warning"}`}>
-                      {fac.statut === "payee" ? "Réglée" : "En attente"}
-                    </span>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <span className={`badge ${fac.statut === "payee" ? "badge-success" : "badge-warning"}`}>
+                        {fac.statut === "payee" ? "Réglée" : "En attente"}
+                      </span>
+                      {!fac.id?.startsWith("mock") && (
+                        <a
+                          href={`/${locale}/factures/${fac.id}/print`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="btn btn-sm btn-secondary"
+                          style={{ padding: "6px 10px", fontSize: 12 }}
+                          title="Imprimer / PDF"
+                        >
+                          <Icon name="download" size={13} /> PDF
+                        </a>
+                      )}
+                    </div>
                   </div>
                 ))}
                 {factures.length === 0 && <div style={{ fontSize: 13, color: "var(--ink-3)", padding: 12 }}>Aucune facture émise pour ce dossier.</div>}

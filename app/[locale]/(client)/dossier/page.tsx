@@ -10,15 +10,14 @@ import { FullTimeline } from "@/components/dossier/FullTimeline";
 import { MessageThread } from "@/components/dossier/MessageThread";
 import { createBrowserClient } from "@supabase/ssr";
 
-const TEAM = [
-  { who: "Pierre Debuisson", role: "Legal Consultant — UAE", color: "PD" },
-  { who: "Yassine Ould-Brahim", role: "Avocat collaborateur", color: "YO" },
-  { who: "Fatima Al-Mazrouei", role: "Conseil local · DIFC", color: "FA" },
-];
+function initials(prenom?: string, nom?: string): string {
+  return `${(prenom || "").charAt(0)}${(nom || "").charAt(0)}`.toUpperCase() || "PD";
+}
 
 export default function DossierPage(): React.ReactElement {
   const [user, setUser] = React.useState<any>(null);
   const [dossier, setDossier] = React.useState<any>(null);
+  const [avocat, setAvocat] = React.useState<any>(null);
   const [isLoading, setIsLoading] = React.useState(true);
   
   // Stats
@@ -39,7 +38,8 @@ export default function DossierPage(): React.ReactElement {
       if (resData.success && resData.dossier) {
         setUser(resData.profile);
         setDossier(resData.dossier);
-        
+        setAvocat(resData.avocat || null);
+
         const docs = resData.documents || [];
         const signed = docs.filter((d: any) => d.signe).length;
         const unsigned = docs.filter((d: any) => !d.signe && d.url).length;
@@ -328,8 +328,8 @@ export default function DossierPage(): React.ReactElement {
         >
           <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
             <div className="card" style={{ padding: 28 }}>
-              <PageHeader eyebrow="Chronologie" title="Éapes d'acquisition" />
-              <FullTimeline />
+              <PageHeader eyebrow="Chronologie" title="Étapes d'acquisition" />
+              <FullTimeline status={dossier.statut} createdAt={dossier.created_at} />
             </div>
 
             <div className="card" style={{ padding: 28 }}>
@@ -419,31 +419,38 @@ export default function DossierPage(): React.ReactElement {
             </div>
 
             <div className="card" style={{ padding: 24 }}>
-              <h3 style={{ fontSize: 16, marginBottom: 14 }}>Intervenants</h3>
-              {TEAM.map((p, i) => (
-                <div
-                  key={i}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 12,
-                    paddingTop: i > 0 ? 12 : 0,
-                    marginTop: i > 0 ? 12 : 0,
-                    borderTop: i > 0 ? "1px solid var(--border)" : "none",
-                  }}
-                >
-                  <div className="avatar">{p.color}</div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 13, fontWeight: 600 }}>{p.who}</div>
-                    <div style={{ fontSize: 11, color: "var(--ink-3)" }}>
-                      {p.role}
-                    </div>
-                  </div>
-                  <Link href="/messagerie" style={{ color: "var(--gold)" }}>
-                    <Icon name="message" size={14} />
-                  </Link>
+              <h3 style={{ fontSize: 16, marginBottom: 14 }}>Votre conseil</h3>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                }}
+              >
+                <div className="avatar">
+                  {avocat
+                    ? initials(avocat.prenom, avocat.nom)
+                    : "PD"}
                 </div>
-              ))}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600 }}>
+                    {avocat
+                      ? `${avocat.prenom} ${avocat.nom}`
+                      : "Pierre Debuisson"}
+                  </div>
+                  <div style={{ fontSize: 11, color: "var(--ink-3)" }}>
+                    Legal Consultant — UAE · Odyssée Advisory
+                  </div>
+                  {avocat?.email && (
+                    <div style={{ fontSize: 11, color: "var(--ink-3)", marginTop: 2 }}>
+                      {avocat.email}
+                    </div>
+                  )}
+                </div>
+                <Link href="/messagerie" style={{ color: "var(--gold)" }}>
+                  <Icon name="message" size={14} />
+                </Link>
+              </div>
             </div>
 
             {/* Banner conditional logic for action required */}

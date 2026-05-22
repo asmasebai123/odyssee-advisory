@@ -7,34 +7,41 @@
  */
 export type DossierStatut =
   | "demande"
-  | "analyse"
+  | "en_analyse"
+  | "pieces_manquantes"
   | "devis"
   | "en_cours"
-  | "termine";
+  | "valide"
+  | "cloture";
 
 /** Libellés FR pour l'UI. */
 export const DOSSIER_STATUT_LABEL: Record<DossierStatut, string> = {
   demande: "Demande",
-  analyse: "En analyse / Pièces",
+  en_analyse: "En analyse",
+  pieces_manquantes: "Pièces manquantes",
   devis: "Devis",
   en_cours: "En cours",
-  termine: "Terminé / Clôturé",
+  valide: "Validé",
+  cloture: "Terminé / Clôturé",
 };
 
 /** Ordre canonique pour stepper / progression. */
 export const DOSSIER_STATUT_ORDER: DossierStatut[] = [
   "demande",
-  "analyse",
+  "en_analyse",
+  "pieces_manquantes",
   "devis",
   "en_cours",
-  "termine",
+  "valide",
+  "cloture",
 ];
 
 export type DocumentType = "contrat" | "facture" | "juridique" | "autre";
 
 export type DevisStatut = "en_attente" | "accepte" | "refuse";
 
-export type FactureStatut = "impayee" | "en_attente" | "payee" | "en_retard";
+/** Aligné sur la contrainte DB : check (statut in ('impayee','payee','en_retard')) */
+export type FactureStatut = "impayee" | "payee" | "en_retard";
 
 export interface Dossier {
   id: string;

@@ -46,6 +46,17 @@ export default function MessageriePage(): React.ReactElement {
     loadMessages();
   }, [loadMessages]);
 
+  // Pré-remplissage : arrivée depuis "Réserver un rendez-vous"
+  React.useEffect(() => {
+    if (typeof window === "undefined") return;
+    const sujet = new URLSearchParams(window.location.search).get("sujet");
+    if (sujet === "rendez-vous") {
+      setInputText(
+        "Bonjour, je souhaiterais convenir d'un rendez-vous avec le cabinet. Quelles seraient vos prochaines disponibilités ? Merci."
+      );
+    }
+  }, []);
+
   React.useEffect(() => {
     if (!dossierId || dossierId === "mock-dossier-id") return;
 

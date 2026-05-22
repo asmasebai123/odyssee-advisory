@@ -9,16 +9,50 @@ export const revalidate = 0;
 const BUCKET = "documents";
 
 /**
- * GET /api/documents/download?id=<documentId>
+ * GET /api/documents/download?id=<documentId>&dl=<0|1>
  *
- * Télécharge un document en générant une **URL signée** courte (60 s) depuis
- * le bucket privé `documents`. Sécurité :
+ * Renvoie le fichier d'un document directement (flux d'octets), avec les
+ * bons en-têtes Content-Type / Content-Disposition :
+ *  - `dl=1`  → téléchargement forcé (attachment) — le fichier est enregistré ;
+ *  - sinon   → affichage en ligne (inline) — ouverture dans le navigateur.
+ *
+ * Sécurité :
  *  - exige une session valide ;
  *  - autorise uniquement le client propriétaire du dossier OU un avocat.
  *
- * Compatibilité : si `documents.url` contient déjà une URL http complète
- * (anciennes données / bucket public), on redirige directement.
+ * Source du fichier :
+ *  - chemin de stockage privé → téléchargé via service_role ;
+ *  - URL http complète (anciennes données / bucket public) → récupérée côté serveur.
  */
+
+/** Devine le type MIME à partir de l'extension du nom de fichier. */
+function guessContentType(name: string): string {
+  const ext = name.toLowerCase().split(".").pop() ?? "";
+  switch (ext) {
+    case "pdf":
+      return "application/pdf";
+    case "jpg":
+    case "jpeg":
+      return "image/jpeg";
+    case "png":
+      return "image/png";
+    case "webp":
+      return "image/webp";
+    case "doc":
+      return "application/msword";
+    case "docx":
+      return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+    default:
+      return "application/octet-stream";
+  }
+}
+
+/** En-tête Content-Disposition compatible RFC 5987 (gère les accents). */
+function contentDisposition(disposition: "inline" | "attachment", name: string): string {
+  const fallback = name.replace(/[^\x20-\x7E]/g, "_").replace(/"/g, "");
+  const encoded = encodeURIComponent(name);
+  return `${disposition}; filename="${fallback}"; filename*=UTF-8''${encoded}`;
+}
 export async function GET(request: NextRequest) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL!;
   const anon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
@@ -107,25 +141,60 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  // 4a. Donnée historique : URL http complète → redirection directe
-  if (stored.startsWith("http://") || stored.startsWith("https://")) {
-    return NextResponse.redirect(stored);
+  // Mode : téléchargement forcé (dl=1) ou affichage en ligne (défaut)
+  const disposition =
+    request.nextUrl.searchParams.get("dl") === "1" ? "attachment" : "inline";
+
+  // Nom de fichier propre, avec extension .pdf par défaut s'il n'y en a pas
+  let filename = (doc.nom ?? "document").trim() || "document";
+  if (!/\.[a-z0-9]{1,5}$/i.test(filename)) {
+    filename += ".pdf";
   }
+  const contentType = guessContentType(filename);
 
-  // 4b. Chemin de stockage privé → URL signée 60 s
-  const { data: signed, error: signError } = await supabaseAdmin.storage
-    .from(BUCKET)
-    .createSignedUrl(stored, 60, { download: doc.nom ?? undefined });
+  let bytes: ArrayBuffer;
 
-  if (signError || !signed?.signedUrl) {
+  try {
+    if (stored.startsWith("http://") || stored.startsWith("https://")) {
+      // 4a. URL http complète (anciennes données / bucket public)
+      const upstream = await fetch(stored, { cache: "no-store" });
+      if (!upstream.ok) {
+        return NextResponse.json(
+          { success: false, error: "Fichier source inaccessible." },
+          { status: 502 },
+        );
+      }
+      bytes = await upstream.arrayBuffer();
+    } else {
+      // 4b. Chemin de stockage privé → téléchargement via service_role
+      const { data: blob, error: dlError } = await supabaseAdmin.storage
+        .from(BUCKET)
+        .download(stored);
+      if (dlError || !blob) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Impossible de récupérer le fichier.",
+          },
+          { status: 500 },
+        );
+      }
+      bytes = await blob.arrayBuffer();
+    }
+  } catch {
     return NextResponse.json(
-      {
-        success: false,
-        error: "Impossible de générer le lien de téléchargement.",
-      },
+      { success: false, error: "Erreur lors de la lecture du fichier." },
       { status: 500 },
     );
   }
 
-  return NextResponse.redirect(signed.signedUrl);
+  return new NextResponse(bytes, {
+    status: 200,
+    headers: {
+      "Content-Type": contentType,
+      "Content-Disposition": contentDisposition(disposition, filename),
+      "Content-Length": String(bytes.byteLength),
+      "Cache-Control": "private, no-store",
+    },
+  });
 }

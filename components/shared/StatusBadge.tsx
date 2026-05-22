@@ -8,6 +8,7 @@ export type StatusKey =
   | "telecharge"
   // Factures
   | "payee"
+  | "impayee"
   | "en-retard"
   // Génériques
   | "actif"
@@ -39,6 +40,7 @@ const STATUS_MAP: Record<StatusKey, BadgeShape> = {
   telecharge: { cls: "badge-gray", label: "Téléchargé" },
   // Factures
   payee: { cls: "badge-gold-solid", label: "Payée", icon: "check" },
+  impayee: { cls: "badge-warn", label: "En attente" },
   "en-retard": { cls: "badge-error", label: "En retard" },
   // Génériques
   actif: { cls: "badge-gold-solid", label: "Actif" },

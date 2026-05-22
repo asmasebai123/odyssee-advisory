@@ -7,8 +7,11 @@ import { KPICard } from "@/components/shared/KPICard";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { StatusBadge, type StatusKey } from "@/components/shared/StatusBadge";
 import { createBrowserClient } from "@supabase/ssr";
+import { useParams } from "next/navigation";
 
 export default function FacturesPage(): React.ReactElement {
+  const params = useParams();
+  const locale = (params?.locale as string) || "fr";
   const [invoices, setInvoices] = React.useState<any[]>([]);
   const [dossierId, setDossierId] = React.useState<string | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -339,12 +342,14 @@ export default function FacturesPage(): React.ReactElement {
                     justifyContent: "flex-end",
                   }}
                 >
-                  <button
+                  <a
+                    href={`/${locale}/factures/${inv.id}/print`}
                     className="btn btn-sm btn-secondary"
-                    style={{ padding: 8 }}
+                    style={{ padding: 8, display: "inline-flex", alignItems: "center", justifyContent: "center" }}
+                    title="Imprimer / PDF"
                   >
-                    <Icon name="download" size={14} />
-                  </button>
+                    <Icon name="pdf" size={14} />
+                  </a>
                   {inv.statut !== "payee" && (
                     <button
                       onClick={() => handlePay(inv.id)}
@@ -356,9 +361,13 @@ export default function FacturesPage(): React.ReactElement {
                     </button>
                   )}
                   {inv.statut === "payee" && (
-                    <button className="btn btn-sm btn-secondary">
+                    <a
+                      href={`/${locale}/factures/${inv.id}/print`}
+                      className="btn btn-sm btn-secondary"
+                      style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
+                    >
                       <Icon name="eye" size={14} /> Reçu
-                    </button>
+                    </a>
                   )}
                 </div>
               </div>
@@ -411,9 +420,13 @@ export default function FacturesPage(): React.ReactElement {
                     <StatusBadge status="payee" />
                   </td>
                   <td style={{ textAlign: "right" }}>
-                    <button style={{ color: "var(--ink-3)" }}>
-                      <Icon name="download" size={15} />
-                    </button>
+                    <a
+                      href={`/${locale}/factures/${h.id}/print`}
+                      style={{ color: "var(--ink-3)", display: "inline-flex", padding: 4 }}
+                      title="Imprimer / PDF"
+                    >
+                      <Icon name="pdf" size={15} />
+                    </a>
                   </td>
                 </tr>
               ))}
