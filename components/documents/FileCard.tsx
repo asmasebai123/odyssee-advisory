@@ -96,12 +96,12 @@ export const FileCard: React.FC<FileCardProps> = ({ doc, onSign }) => {
                 right: 0,
                 top: "100%",
                 marginTop: 4,
-                width: 160,
-                background: "var(--bg-card, #202738)",
-                border: "1px solid var(--border, #2d384e)",
-                borderRadius: 4,
-                boxShadow: "0 4px 12px rgba(0, 0, 0, 0.3)",
-                zIndex: 10,
+                width: 180,
+                background: "var(--white)",
+                border: "1px solid var(--border)",
+                borderRadius: 8,
+                boxShadow: "0 12px 30px rgba(40, 25, 10, 0.16)",
+                zIndex: 30,
                 display: "flex",
                 flexDirection: "column",
                 padding: "4px 0",
@@ -117,7 +117,7 @@ export const FileCard: React.FC<FileCardProps> = ({ doc, onSign }) => {
                     style={{
                       padding: "8px 12px",
                       fontSize: 13,
-                      color: "var(--ink, #ffffff)",
+                      color: "var(--ink)",
                       textDecoration: "none",
                       display: "flex",
                       alignItems: "center",
@@ -125,7 +125,7 @@ export const FileCard: React.FC<FileCardProps> = ({ doc, onSign }) => {
                       transition: "background 0.2s",
                       cursor: "pointer",
                     }}
-                    onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.06)")}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(184,150,90,0.08)")}
                     onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                   >
                     <Icon name="eye" size={14} /> Consulter
@@ -136,7 +136,7 @@ export const FileCard: React.FC<FileCardProps> = ({ doc, onSign }) => {
                     style={{
                       padding: "8px 12px",
                       fontSize: 13,
-                      color: "var(--ink, #ffffff)",
+                      color: "var(--ink)",
                       textDecoration: "none",
                       display: "flex",
                       alignItems: "center",
@@ -144,7 +144,7 @@ export const FileCard: React.FC<FileCardProps> = ({ doc, onSign }) => {
                       transition: "background 0.2s",
                       cursor: "pointer",
                     }}
-                    onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,255,255,0.06)")}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(184,150,90,0.08)")}
                     onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
                   >
                     <Icon name="download" size={14} /> Télécharger

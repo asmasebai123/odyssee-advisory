@@ -57,9 +57,9 @@ const config: Config = {
         error: "#C0392B",
       },
       fontFamily: {
-        display: ['var(--font-display)', '"Plus Jakarta Sans"', '"Inter"', "sans-serif"],
-        sans: ['var(--font-sans)', '"Inter"', "system-ui", "sans-serif"],
-        serif: ['var(--font-display)', '"Plus Jakarta Sans"', '"Inter"', "serif"],
+        display: ['var(--font-display)', '"Poppins"', "sans-serif"],
+        sans: ['var(--font-display)', '"Poppins"', "system-ui", "sans-serif"],
+        serif: ['var(--font-serif)', '"Cormorant Garamond"', "Georgia", "serif"],
         mono: ['"JetBrains Mono"', "ui-monospace", "monospace"],
       },
       borderRadius: {

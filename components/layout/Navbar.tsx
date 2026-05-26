@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { Icon } from "@/components/shared/Icon";
+import { useMobileNav } from "@/components/layout/MobileShell";
 
 export interface NavbarProps {
   title: string;
@@ -24,8 +25,30 @@ export const Navbar: React.FC<NavbarProps> = ({
   switchRoleHref,
   switchRoleLabel,
   initials = "PL",
-}) => (
+}) => {
+  const { setOpen } = useMobileNav();
+  return (
   <div className="topbar">
+    <button
+      type="button"
+      className="mobile-burger"
+      onClick={() => setOpen(true)}
+      aria-label="Ouvrir le menu"
+      style={{
+        width: 40,
+        height: 40,
+        borderRadius: 8,
+        alignItems: "center",
+        justifyContent: "center",
+        color: "var(--ink)",
+        border: "1px solid var(--border)",
+        background: "var(--white)",
+        flexShrink: 0,
+        cursor: "pointer",
+      }}
+    >
+      <Icon name="menu" size={20} />
+    </button>
     <div style={{ flex: 1, minWidth: 0 }}>
       {breadcrumb && (
         <div
@@ -138,4 +161,5 @@ export const Navbar: React.FC<NavbarProps> = ({
       {initials}
     </div>
   </div>
-);
+  );
+};

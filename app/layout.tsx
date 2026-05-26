@@ -1,19 +1,17 @@
 import * as React from "react";
-import { Inter, Plus_Jakarta_Sans, Cormorant_Garamond } from "next/font/google";
+import { Poppins, Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-sans",
-  display: "swap",
-});
-
-const jakarta = Plus_Jakarta_Sans({
+// Titres + corps de texte — Poppins (style LawSight), chargé via next/font
+// (auto-hébergé, sans décalage de mise en page).
+const poppins = Poppins({
   subsets: ["latin"],
   variable: "--font-display",
+  weight: ["300", "400", "500", "600", "700", "800"],
   display: "swap",
 });
 
+// Accent or italique (« Pierre », « experience »…) — Cormorant Garamond.
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
   variable: "--font-serif",
@@ -28,10 +26,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html
-      lang="fr"
-      className={`${inter.variable} ${jakarta.variable} ${cormorant.variable}`}
-    >
+    <html lang="fr" className={`${poppins.variable} ${cormorant.variable}`}>
       <body>{children}</body>
     </html>
   );
