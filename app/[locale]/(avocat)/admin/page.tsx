@@ -431,9 +431,11 @@ export default function AdminDashboardPage() {
             <h3 style={{ fontSize: 18, fontWeight: 700 }}>Dossiers ({filteredDossiers.length})</h3>
           </div>
 
+          <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", maxWidth: "100%" }}>
           <table
             style={{
               width: "100%",
+              minWidth: 720,
               textAlign: "left",
               borderCollapse: "collapse",
             }}
@@ -554,6 +556,7 @@ export default function AdminDashboardPage() {
               )}
             </tbody>
           </table>
+          </div>
         </div>
       </div>
 

@@ -236,7 +236,7 @@ export default function LoginPage(): React.ReactElement {
           <div style={{ flex: 1, display: "flex", alignItems: "center" }}>
             <div style={{ maxWidth: 460 }}>
               <div className="rule-gold" />
-              <h1 style={{ fontSize: 54, lineHeight: 1.05, color: "white", letterSpacing: "-0.01em" }}>
+              <h1 style={{ fontSize: "clamp(30px, 7.5vw, 54px)", lineHeight: 1.08, color: "white", letterSpacing: "-0.01em", overflowWrap: "break-word", maxWidth: "100%" }}>
                 {t.hero_title}
                 <br />
                 <span style={{ fontStyle: "italic", color: "var(--gold)" }}>

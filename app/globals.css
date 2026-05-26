@@ -856,4 +856,14 @@ a {
   [style*="minmax(320px"] {
     grid-template-columns: 1fr !important;
   }
+  /* Réduire le padding horizontal des cartes pour gagner de la place sur petits écrans */
+  .card {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+  /* Et un peu moins de padding de page */
+  .page-pad {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
 }
