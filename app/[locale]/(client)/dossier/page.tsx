@@ -9,12 +9,16 @@ import { StatusBadge } from "@/components/shared/StatusBadge";
 import { FullTimeline } from "@/components/dossier/FullTimeline";
 import { MessageThread } from "@/components/dossier/MessageThread";
 import { createBrowserClient } from "@supabase/ssr";
+import { useTranslations } from "next-intl";
 
 function initials(prenom?: string, nom?: string): string {
   return `${(prenom || "").charAt(0)}${(nom || "").charAt(0)}`.toUpperCase() || "PD";
 }
 
 export default function DossierPage(): React.ReactElement {
+  const t = useTranslations("dossierPage");
+  const tNav = useTranslations("navbar");
+  
   const [user, setUser] = React.useState<any>(null);
   const [dossier, setDossier] = React.useState<any>(null);
   const [avocat, setAvocat] = React.useState<any>(null);
@@ -184,16 +188,16 @@ export default function DossierPage(): React.ReactElement {
   };
 
   if (isLoading) {
-    return <div style={{ padding: 40, textAlign: "center", color: "var(--ink-3)" }}>Chargement du dossier...</div>;
+    return <div style={{ padding: 40, textAlign: "center", color: "var(--ink-3)" }}>{t("loading")}</div>;
   }
 
   if (!dossier) {
     return (
       <>
-        <Navbar title="Mon dossier" breadcrumb="Espace client" />
+        <Navbar title={t("title")} breadcrumb={t("breadcrumb")} />
         <div style={{ padding: 60, textAlign: "center", color: "var(--ink-2)" }}>
-          <h3>Aucun dossier actif pour le moment.</h3>
-          <p style={{ marginTop: 10, fontSize: 14 }}>Un avocat associé procède à l&apos;ouverture de votre compte.</p>
+          <h3>{t("noDossier")}</h3>
+          <p style={{ marginTop: 10, fontSize: 14 }}>{t("noDossierSub")}</p>
         </div>
       </>
     );
@@ -217,10 +221,10 @@ export default function DossierPage(): React.ReactElement {
   return (
     <>
       <Navbar
-        title="Mon dossier"
-        breadcrumb="Espace client · Dossiers"
+        title={t("title")}
+        breadcrumb={t("breadcrumb")}
         switchRoleHref="/admin"
-        switchRoleLabel="Vue cabinet"
+        switchRoleLabel={tNav("switchToAvocat")}
       />
 
       <div className="page-fade page-pad">
@@ -255,7 +259,7 @@ export default function DossierPage(): React.ReactElement {
                   fontWeight: 600,
                 }}
               >
-                Dossier #{((dossier.id && typeof dossier.id === 'string' && dossier.id.includes('-')) ? dossier.id.split('-')[0] : (dossier.id || 'N/A')).toUpperCase()}
+                {t("ref", { id: ((dossier.id && typeof dossier.id === 'string' && dossier.id.includes('-')) ? dossier.id.split('-')[0] : (dossier.id || 'N/A')).toUpperCase() })}
               </span>
               <StatusBadge status={dossier.statut} />
             </div>
@@ -277,13 +281,13 @@ export default function DossierPage(): React.ReactElement {
                 marginBottom: 22,
               }}
             >
-              Prestation : {dossier.type_service}
+              {dossier.type_service}
             </div>
 
             <div style={{ display: "flex", gap: 36, marginTop: 20 }}>
               <div>
                 <div style={{ fontSize: 10.5, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--ink-3)", fontWeight: 600, marginBottom: 4 }}>
-                  Ouvert le
+                  {t("openDate")}
                 </div>
                 <div style={{ fontFamily: "var(--serif)", fontSize: 20, color: "var(--ink)", fontWeight: 500 }}>
                   {dossier.created_at ? new Date(dossier.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Date inconnue'}
@@ -291,7 +295,7 @@ export default function DossierPage(): React.ReactElement {
               </div>
               <div>
                 <div style={{ fontSize: 10.5, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--ink-3)", fontWeight: 600, marginBottom: 4 }}>
-                  Valeur estimée
+                  {t("estimatedValue")}
                 </div>
                 <div style={{ fontFamily: "var(--serif)", fontSize: 20, color: "var(--gold)", fontWeight: 500 }}>
                   {formattedValue}
@@ -301,10 +305,10 @@ export default function DossierPage(): React.ReactElement {
 
             <div style={{ display: "flex", gap: 10, marginTop: 28 }}>
               <Link href="/documents" className="btn btn-primary">
-                <Icon name="download" size={14} /> Bibliothèque des documents
+                <Icon name="download" size={14} /> {t("docsLib")}
               </Link>
               <Link href="/messagerie" className="btn btn-secondary">
-                <Icon name="message" size={14} /> Messagerie instantanée
+                <Icon name="message" size={14} /> {t("instantMessenger")}
               </Link>
             </div>
           </div>
@@ -330,17 +334,17 @@ export default function DossierPage(): React.ReactElement {
         >
           <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
             <div className="card" style={{ padding: 28 }}>
-              <PageHeader eyebrow="Chronologie" title="Étapes d'acquisition" />
+              <PageHeader eyebrow={t("chronology")} title={t("steps")} />
               <FullTimeline status={dossier.statut} createdAt={dossier.created_at} />
             </div>
 
             <div className="card" style={{ padding: 28 }}>
               <PageHeader
-                eyebrow="Échanges"
-                title="Messagerie sécurisée"
+                eyebrow={t("exchanges")}
+                title={t("secureChat")}
                 action={
                   <span className="badge badge-success">
-                    <Icon name="shield" size={11} /> Chiffré E2E
+                    <Icon name="shield" size={11} /> {t("encrypted")}
                   </span>
                 }
               />
@@ -358,7 +362,7 @@ export default function DossierPage(): React.ReactElement {
                 }}
               >
                 <input
-                  placeholder="Écrire un message à Maître Debuisson…"
+                  placeholder={t("writeMessage")}
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                   onKeyDown={(e) => { if (e.key === 'Enter') handleSendMessage(); }}
@@ -376,7 +380,7 @@ export default function DossierPage(): React.ReactElement {
                   className="btn btn-sm btn-primary"
                   disabled={isSending || !newMessage.trim()}
                 >
-                  <Icon name="send" size={12} /> Envoyer
+                  <Icon name="send" size={12} /> {t("send")}
                 </button>
               </div>
             </div>
@@ -394,7 +398,7 @@ export default function DossierPage(): React.ReactElement {
             }}
           >
             <div className="card" style={{ padding: 24 }}>
-              <h3 style={{ fontSize: 16, marginBottom: 4 }}>Résumé du dossier</h3>
+              <h3 style={{ fontSize: 16, marginBottom: 4 }}>{t("summary")}</h3>
               <div className="rule-gold" style={{ marginTop: 8 }} />
 
               <div
@@ -406,22 +410,22 @@ export default function DossierPage(): React.ReactElement {
                 }}
               >
                 <div style={{ display: "flex", justifyContent: "space-between", paddingBottom: 12, borderBottom: "1px solid var(--border)" }}>
-                  <span style={{ fontSize: 12, color: "var(--ink-3)" }}>Client</span>
+                  <span style={{ fontSize: 12, color: "var(--ink-3)" }}>{t("client")}</span>
                   <span style={{ fontSize: 13, fontWeight: 600, color: "var(--ink)" }}>{user.prenom} {user.nom}</span>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", paddingBottom: 12, borderBottom: "1px solid var(--border)" }}>
-                  <span style={{ fontSize: 12, color: "var(--ink-3)" }}>Type de Mandat</span>
+                  <span style={{ fontSize: 12, color: "var(--ink-3)" }}>{t("mandateType")}</span>
                   <span style={{ fontSize: 13, fontWeight: 600, color: "var(--ink)" }}>{dossier.type_service}</span>
                 </div>
                 <div style={{ display: "flex", justifyContent: "space-between", paddingBottom: 12 }}>
-                  <span style={{ fontSize: 12, color: "var(--ink-3)" }}>Valeur du Projet</span>
+                  <span style={{ fontSize: 12, color: "var(--ink-3)" }}>{t("projectValue")}</span>
                   <span style={{ fontSize: 13, fontWeight: 600, color: "var(--gold)" }}>{formattedValue}</span>
                 </div>
               </div>
             </div>
 
             <div className="card" style={{ padding: 24 }}>
-              <h3 style={{ fontSize: 16, marginBottom: 14 }}>Votre conseil</h3>
+              <h3 style={{ fontSize: 16, marginBottom: 14 }}>{t("yourCounsel")}</h3>
               <div
                 style={{
                   display: "flex",
@@ -475,7 +479,7 @@ export default function DossierPage(): React.ReactElement {
                     marginBottom: 8,
                   }}
                 >
-                  Action requise
+                  {t("actionRequired")}
                 </div>
                 <div
                   style={{
@@ -486,7 +490,7 @@ export default function DossierPage(): React.ReactElement {
                     letterSpacing: "-0.01em",
                   }}
                 >
-                  {docsCount.unsigned} document(s) en attente de signature
+                  {t("unsignedDocsCount", { count: docsCount.unsigned })}
                 </div>
                 <div
                   style={{
@@ -495,14 +499,14 @@ export default function DossierPage(): React.ReactElement {
                     marginBottom: 16,
                   }}
                 >
-                  Rendez-vous dans votre espace de signature.
+                  {t("signatureSpaceHint")}
                 </div>
                 <Link
                   href="/documents"
                   className="btn btn-dark"
                   style={{ width: "100%", justifyContent: "center" }}
                 >
-                  Examiner maintenant
+                  {t("reviewNow")}
                   <Icon name="arrow-right" size={14} />
                 </Link>
               </div>

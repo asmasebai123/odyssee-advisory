@@ -307,7 +307,7 @@ export default function LawyerFacturesPage(): React.ReactElement {
                       </td>
                       <td style={{ textAlign: "right" }}>
                         <a
-                          href={`/${locale}/admin/factures/${inv.id}/print`}
+                          href={`/${locale}/factures/${inv.id}/print`}
                           className="btn btn-secondary btn-sm"
                           style={{ padding: 6, display: "inline-flex", alignItems: "center", justifyContent: "center" }}
                           title="Imprimer / PDF"

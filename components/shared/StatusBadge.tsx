@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import { Icon, type IconName } from "./Icon";
 
 export type StatusKey =
@@ -29,35 +30,36 @@ export type StatusKey =
 
 interface BadgeShape {
   cls: string;
-  label: string;
+  /** Chemin de traduction (relatif à la racine des messages). */
+  tKey: string;
   icon?: IconName;
 }
 
 const STATUS_MAP: Record<StatusKey, BadgeShape> = {
   // Documents
-  signe: { cls: "badge-gold-solid", label: "Signé", icon: "check" },
-  "en-attente": { cls: "badge-warn", label: "En attente" },
-  telecharge: { cls: "badge-gray", label: "Téléchargé" },
+  signe: { cls: "badge-gold-solid", tKey: "status.document.signed", icon: "check" },
+  "en-attente": { cls: "badge-warn", tKey: "status.document.pending" },
+  telecharge: { cls: "badge-gray", tKey: "status.document.uploaded" },
   // Factures
-  payee: { cls: "badge-gold-solid", label: "Payée", icon: "check" },
-  impayee: { cls: "badge-warn", label: "En attente" },
-  "en-retard": { cls: "badge-error", label: "En retard" },
+  payee: { cls: "badge-gold-solid", tKey: "status.invoice.paid", icon: "check" },
+  impayee: { cls: "badge-warn", tKey: "status.invoice.unpaid" },
+  "en-retard": { cls: "badge-error", tKey: "status.invoice.overdue" },
   // Génériques
-  actif: { cls: "badge-gold-solid", label: "Actif" },
-  nouveau: { cls: "badge-success", label: "Nouveau" },
-  urgent: { cls: "badge-error", label: "Urgent" },
-  draft: { cls: "badge-gray", label: "Brouillon" },
-  review: { cls: "badge-warn", label: "Révision" },
+  actif: { cls: "badge-gold-solid", tKey: "status.generic.active" },
+  nouveau: { cls: "badge-success", tKey: "status.generic.new" },
+  urgent: { cls: "badge-error", tKey: "status.generic.urgent" },
+  draft: { cls: "badge-gray", tKey: "status.generic.draft" },
+  review: { cls: "badge-warn", tKey: "status.generic.review" },
   // Statuts dossier (cahier §6.2.1)
-  demande: { cls: "badge-gray", label: "Demande" },
-  analyse: { cls: "badge-warn", label: "En analyse / Pièces" },
-  en_analyse: { cls: "badge-warn", label: "En analyse" },
-  pieces_manquantes: { cls: "badge-error", label: "Pièces manquantes" },
-  devis: { cls: "badge-gold", label: "Devis" },
-  en_cours: { cls: "badge-gold-solid", label: "En cours" },
-  termine: { cls: "badge-success", label: "Terminé", icon: "check" },
-  valide: { cls: "badge-success", label: "Validé", icon: "check" },
-  cloture: { cls: "badge-gray", label: "Clôturé" },
+  demande: { cls: "badge-gray", tKey: "status.dossier.demande" },
+  analyse: { cls: "badge-warn", tKey: "status.dossier.analyse" },
+  en_analyse: { cls: "badge-warn", tKey: "status.dossier.en_analyse" },
+  pieces_manquantes: { cls: "badge-error", tKey: "status.dossier.pieces_manquantes" },
+  devis: { cls: "badge-gold", tKey: "status.dossier.devis" },
+  en_cours: { cls: "badge-gold-solid", tKey: "status.dossier.en_cours" },
+  termine: { cls: "badge-success", tKey: "status.dossier.termine", icon: "check" },
+  valide: { cls: "badge-success", tKey: "status.dossier.valide", icon: "check" },
+  cloture: { cls: "badge-gray", tKey: "status.dossier.cloture" },
 };
 
 export interface StatusBadgeProps {
@@ -65,11 +67,14 @@ export interface StatusBadgeProps {
 }
 
 export const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
-  const v = STATUS_MAP[status as StatusKey] ?? { cls: "badge-gray", label: status };
+  const t = useTranslations();
+  const v = STATUS_MAP[status as StatusKey];
+  const label = v ? t(v.tKey) : String(status);
+  const cls = v?.cls ?? "badge-gray";
   return (
-    <span className={"badge " + v.cls}>
-      {v.icon && <Icon name={v.icon} size={11} stroke={3} />}
-      {v.label}
+    <span className={"badge " + cls}>
+      {v?.icon && <Icon name={v.icon} size={11} stroke={3} />}
+      {label}
     </span>
   );
 };

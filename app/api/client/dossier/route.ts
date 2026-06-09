@@ -87,7 +87,7 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // 4. Charger TOUS les dossiers du client (le plus récent = dossier "actif")
+    // 4. Charger TOUS les dossiers du client (le plus récent = dossier "actif" par défaut)
     const { data: dossiersList } = await supabaseAdmin
       .from("dossiers")
       .select("*")
@@ -95,33 +95,42 @@ export async function GET(request: NextRequest) {
       .order("created_at", { ascending: false });
 
     const dossiers = dossiersList || [];
-    const dossier = dossiers[0] || null;
+
+    // Récupérer le dossier sélectionné via le cookie selected_dossier_id
+    const cookieStore = request.cookies;
+    const selectedDossierId = cookieStore.get("selected_dossier_id")?.value;
+
+    let dossier = null;
+    if (selectedDossierId) {
+      dossier = dossiers.find((d: any) => d.id === selectedDossierId) || null;
+    }
+    if (!dossier) {
+      dossier = dossiers[0] || null;
+    }
 
     if (!dossier) {
       return NextResponse.json({
         success: true,
         profile,
         dossier: null,
+        dossiers: [],
         documents: [],
         factures: [],
         messages: []
       });
     }
 
-    // 5. Agréger documents / factures / messages sur TOUS les dossiers du client
-    //    (évite qu'une pièce demandée sur un autre dossier reste invisible)
-    const dossierIds = dossiers.map((d: any) => d.id);
-
+    // 5. Charger documents / factures / messages spécifiques au dossier ACTIF sélectionné
     const { data: documents } = await supabaseAdmin
       .from("documents")
       .select("*")
-      .in("dossier_id", dossierIds)
+      .eq("dossier_id", dossier.id)
       .order("created_at", { ascending: false });
 
     const { data: factures } = await supabaseAdmin
       .from("factures")
       .select("*")
-      .in("dossier_id", dossierIds)
+      .eq("dossier_id", dossier.id)
       .order("created_at", { ascending: false });
 
     const { data: messages } = await supabaseAdmin
@@ -134,7 +143,7 @@ export async function GET(request: NextRequest) {
           role
         )
       `)
-      .in("dossier_id", dossierIds)
+      .eq("dossier_id", dossier.id)
       .order("created_at", { ascending: true });
 
     // 6. Le conseil référent du cabinet (avocat réel en base)
@@ -150,6 +159,7 @@ export async function GET(request: NextRequest) {
       success: true,
       profile,
       dossier,
+      dossiers,
       documents: documents || [],
       factures: factures || [],
       messages: messages || [],
@@ -225,13 +235,30 @@ export async function POST(request: NextRequest) {
     }
 
     // A. Récupérer le dossier de l'utilisateur pour vérifier que l'action s'applique bien à son propre dossier
-    const { data: dossier, error: dosErr } = await supabaseAdmin
-      .from("dossiers")
-      .select("id")
-      .eq("client_id", user.id)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+    const cookieStore = request.cookies;
+    const selectedDossierId = cookieStore.get("selected_dossier_id")?.value;
+
+    let dossier = null;
+    if (selectedDossierId) {
+      const { data } = await supabaseAdmin
+        .from("dossiers")
+        .select("id")
+        .eq("client_id", user.id)
+        .eq("id", selectedDossierId)
+        .maybeSingle();
+      dossier = data;
+    }
+
+    if (!dossier) {
+      const { data } = await supabaseAdmin
+        .from("dossiers")
+        .select("id")
+        .eq("client_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      dossier = data;
+    }
 
     if (!dossier) {
       return NextResponse.json(
@@ -259,6 +286,34 @@ export async function POST(request: NextRequest) {
         });
 
       if (error) throw new Error("Message insert error: " + error.message);
+
+      // Notifier l'avocat
+      try {
+        const { data: clientProfile } = await supabaseAdmin
+          .from("users")
+          .select("prenom, nom")
+          .eq("id", user.id)
+          .single();
+        const clientName = clientProfile ? `${clientProfile.prenom} ${clientProfile.nom}`.trim() : "Client";
+
+        const { data: avocat } = await supabaseAdmin
+          .from("users")
+          .select("id")
+          .eq("role", "avocat")
+          .limit(1)
+          .maybeSingle();
+
+        if (avocat?.id) {
+          await supabaseAdmin.from("notifications").insert({
+            user_id: avocat.id,
+            message: `Nouveau message de ${clientName} : « ${contenu.trim().slice(0, 50)}${contenu.trim().length > 50 ? "..." : ""} ».`,
+            type: "message",
+            lu: false,
+          });
+        }
+      } catch (err) {
+        console.error("Failed to notify lawyer on client message:", err);
+      }
 
       return NextResponse.json({ success: true });
     }
@@ -318,9 +373,26 @@ export async function POST(request: NextRequest) {
             dossierTitle,
             nom.trim()
           );
+
+          // Notification database à l'avocat
+          const { data: avocat } = await supabaseAdmin
+            .from("users")
+            .select("id")
+            .eq("role", "avocat")
+            .limit(1)
+            .maybeSingle();
+
+          if (avocat?.id) {
+            await supabaseAdmin.from("notifications").insert({
+              user_id: avocat.id,
+              message: `Le client ${clientName} a déposé le document « ${nom.trim()} ».`,
+              type: "document",
+              lu: false,
+            });
+          }
         }
       } catch (emailErr) {
-        console.error("Failed to send doc uploaded email notification:", emailErr);
+        console.error("Failed to send doc uploaded email/db notification:", emailErr);
       }
 
       return NextResponse.json({ success: true });
@@ -338,7 +410,7 @@ export async function POST(request: NextRequest) {
       // Verify document belongs to client's dossier before updating
       const { data: doc } = await supabaseAdmin
         .from("documents")
-        .select("dossier_id")
+        .select("dossier_id, nom")
         .eq("id", documentId)
         .single();
 
@@ -356,6 +428,34 @@ export async function POST(request: NextRequest) {
 
       if (error) throw new Error("Document signature error: " + error.message);
 
+      // Notification database à l'avocat
+      try {
+        const { data: clientProfile } = await supabaseAdmin
+          .from("users")
+          .select("prenom, nom")
+          .eq("id", user.id)
+          .single();
+        const clientName = clientProfile ? `${clientProfile.prenom} ${clientProfile.nom}`.trim() : "Client";
+
+        const { data: avocat } = await supabaseAdmin
+          .from("users")
+          .select("id")
+          .eq("role", "avocat")
+          .limit(1)
+          .maybeSingle();
+
+        if (avocat?.id) {
+          await supabaseAdmin.from("notifications").insert({
+            user_id: avocat.id,
+            message: `Le document « ${doc.nom || "document"} » a été signé par le client ${clientName}.`,
+            type: "signature",
+            lu: false,
+          });
+        }
+      } catch (err) {
+        console.error("Failed to notify lawyer on client doc signature:", err);
+      }
+
       return NextResponse.json({ success: true });
     }
 
@@ -372,7 +472,7 @@ export async function POST(request: NextRequest) {
       // Verify invoice belongs to client's dossier before updating
       const { data: invoice } = await supabaseAdmin
         .from("factures")
-        .select("dossier_id")
+        .select("dossier_id, reference, montant")
         .eq("id", invoiceId)
         .single();
 
@@ -389,6 +489,34 @@ export async function POST(request: NextRequest) {
         .eq("id", invoiceId);
 
       if (error) throw new Error("Facture update error: " + error.message);
+
+      // Notification database à l'avocat
+      try {
+        const { data: clientProfile } = await supabaseAdmin
+          .from("users")
+          .select("prenom, nom")
+          .eq("id", user.id)
+          .single();
+        const clientName = clientProfile ? `${clientProfile.prenom} ${clientProfile.nom}`.trim() : "Client";
+
+        const { data: avocat } = await supabaseAdmin
+          .from("users")
+          .select("id")
+          .eq("role", "avocat")
+          .limit(1)
+          .maybeSingle();
+
+        if (avocat?.id) {
+          await supabaseAdmin.from("notifications").insert({
+            user_id: avocat.id,
+            message: `Le client ${clientName} a réglé la facture ${invoice.reference || ""} (${invoice.montant || 0} €).`,
+            type: "invoice",
+            lu: false,
+          });
+        }
+      } catch (err) {
+        console.error("Failed to notify lawyer on client invoice payment:", err);
+      }
 
       return NextResponse.json({ success: true });
     }

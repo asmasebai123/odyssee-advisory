@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import { PublicNavbar } from "@/components/layout/PublicNavbar";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -5,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export default function ContactPage() {
+  const t = useTranslations("publicPages.contact");
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <PublicNavbar />
@@ -14,19 +19,19 @@ export default function ContactPage() {
           <div className="grid gap-16 md:grid-cols-2">
             <div>
               <h1 className="font-display text-4xl md:text-5xl font-bold text-sidebar-deep mb-6">
-                Contactez-nous
+                {t("title")}
               </h1>
               <p className="text-lg text-text-muted mb-8">
-                Vous avez un projet d&apos;investissement à Dubaï ou vous souhaitez sécuriser une transaction en cours ? Laissez-nous vos coordonnées, nous vous recontacterons dans les 24h.
+                {t("subtitle")}
               </p>
               
               <div className="space-y-6">
                 <div>
-                  <h3 className="font-semibold text-sidebar-deep">Bureau (Dubaï)</h3>
+                  <h3 className="font-semibold text-sidebar-deep">{t("office_label")}</h3>
                   <p className="text-text-muted">Dubai International Financial Centre (DIFC)<br/>Dubaï, UAE</p>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-sidebar-deep">Email</h3>
+                  <h3 className="font-semibold text-sidebar-deep">{t("email_label")}</h3>
                   <p className="text-text-muted">contact@odyssee-advisory.com</p>
                 </div>
               </div>
@@ -36,33 +41,33 @@ export default function ContactPage() {
               <form className="space-y-6">
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
-                    <Label htmlFor="firstName">Prénom</Label>
-                    <Input id="firstName" placeholder="Jean" />
+                    <Label htmlFor="firstName">{t("form_firstName")}</Label>
+                    <Input id="firstName" placeholder={t("form_firstName_ph")} />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="lastName">Nom</Label>
-                    <Input id="lastName" placeholder="Dupont" />
+                    <Label htmlFor="lastName">{t("form_lastName")}</Label>
+                    <Input id="lastName" placeholder={t("form_lastName_ph")} />
                   </div>
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" placeholder="jean.dupont@email.com" />
+                  <Label htmlFor="email">{t("form_email")}</Label>
+                  <Input id="email" type="email" placeholder={t("form_email_ph")} />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Téléphone</Label>
-                  <Input id="phone" type="tel" placeholder="+33 6 12 34 56 78" />
+                  <Label htmlFor="phone">{t("form_phone")}</Label>
+                  <Input id="phone" type="tel" placeholder={t("form_phone_ph")} />
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="subject">Sujet de votre demande</Label>
-                  <Input id="subject" placeholder="Achat sur plan (Off-Plan)" />
+                  <Label htmlFor="subject">{t("form_subject")}</Label>
+                  <Input id="subject" placeholder={t("form_subject_ph")} />
                 </div>
 
-                <Button type="button" className="w-full">Envoyer la demande</Button>
+                <Button type="button" className="w-full">{t("form_submit")}</Button>
                 <p className="text-xs text-text-muted text-center mt-4">
-                  Vos données sont traitées de manière confidentielle conformément à notre politique de confidentialité.
+                  {t("form_privacy")}
                 </p>
               </form>
             </div>

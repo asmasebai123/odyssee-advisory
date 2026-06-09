@@ -1,7 +1,10 @@
+import { useTranslations } from "next-intl";
 import { PublicNavbar } from "@/components/layout/PublicNavbar";
 import { Footer } from "@/components/layout/Footer";
 
 export default function MentionsLegalesPage() {
+  const t = useTranslations("publicPages.mentionsLegales");
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <PublicNavbar />
@@ -9,30 +12,30 @@ export default function MentionsLegalesPage() {
       <main className="flex-1 py-20">
         <div className="container max-w-4xl">
           <h1 className="font-display text-4xl md:text-5xl font-bold text-sidebar-deep mb-10">
-            Mentions Légales
+            {t("title")}
           </h1>
           
           <div className="prose prose-lg text-text-muted">
-            <h2 className="font-display text-2xl font-semibold text-sidebar-deep mt-8 mb-4">1. Éditeur du site</h2>
+            <h2 className="font-display text-2xl font-semibold text-sidebar-deep mt-8 mb-4">{t("s1_title")}</h2>
+            <p
+              dangerouslySetInnerHTML={{ __html: t("s1_desc") }}
+            />
             <p>
-              Le site <strong>Odyssée Advisory</strong> est édité par Monsieur Pierre Debuisson, exerçant en tant que <em>Legal Consultant</em> aux Émirats Arabes Unis.
-            </p>
-            <p>
-              Siège social : Dubai International Financial Centre (DIFC), Dubaï, Émirats Arabes Unis.<br/>
-              Email : contact@odyssee-advisory.com
-            </p>
-
-            <h2 className="font-display text-2xl font-semibold text-sidebar-deep mt-8 mb-4">2. Hébergement</h2>
-            <p>
-              Le site est hébergé sur des serveurs sécurisés situés aux Émirats Arabes Unis, garantissant la protection et la localisation des données en conformité avec la réglementation locale.
+              {t("s1_address")}<br/>
+              {t("s1_email")}
             </p>
 
-            <h2 className="font-display text-2xl font-semibold text-sidebar-deep mt-8 mb-4">3. Avertissement Légal</h2>
+            <h2 className="font-display text-2xl font-semibold text-sidebar-deep mt-8 mb-4">{t("s2_title")}</h2>
             <p>
-              Les informations fournies sur ce site le sont à titre purement indicatif et pédagogique. Elles ne sauraient constituer un conseil juridique personnalisé ni une offre d&apos;investissement avec garantie de rendement.
+              {t("s2_desc")}
+            </p>
+
+            <h2 className="font-display text-2xl font-semibold text-sidebar-deep mt-8 mb-4">{t("s3_title")}</h2>
+            <p>
+              {t("s3_desc")}
             </p>
             <p>
-              Odyssée Advisory agit strictement en tant que cabinet de conseil juridique et stratégique, et n&apos;exerce pas d&apos;activité de courtage immobilier ou d&apos;agence immobilière.
+              {t("s3_desc2")}
             </p>
           </div>
         </div>

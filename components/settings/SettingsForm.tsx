@@ -1,8 +1,10 @@
 "use client";
 
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import { createBrowserClient } from "@supabase/ssr";
 import { Icon } from "@/components/shared/Icon";
+import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
 
 type Lang = "fr" | "en" | "ar";
 
@@ -48,6 +50,7 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({ user, role = "client
   const [emailNotif, setEmailNotif] = React.useState(true);
 
   const [saving, setSaving] = React.useState(false);
+  const tSettings = useTranslations("settings");
   const [feedback, setFeedback] = React.useState<{
     kind: "ok" | "err";
     text: string;
@@ -162,38 +165,12 @@ export const SettingsForm: React.FC<SettingsFormProps> = ({ user, role = "client
                 fontWeight: 600,
               }}
             >
-              Langue de l&apos;interface
+              {tSettings("languageSection")}
             </label>
-            <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-              {(["fr", "en", "ar"] as const).map((l) => (
-                <button
-                  key={l}
-                  type="button"
-                  onClick={() => setLangue(l)}
-                  style={{
-                    padding: "8px 14px",
-                    fontSize: 12,
-                    fontWeight: 600,
-                    letterSpacing: "0.08em",
-                    textTransform: "uppercase",
-                    border:
-                      langue === l
-                        ? "1px solid var(--gold)"
-                        : "1px solid var(--border)",
-                    background:
-                      langue === l ? "var(--gold-dim)" : "var(--white)",
-                    color: langue === l ? "var(--gold)" : "var(--ink-2)",
-                    borderRadius: 4,
-                  }}
-                >
-                  {l === "fr"
-                    ? "Français"
-                    : l === "en"
-                      ? "English"
-                      : "العربية"}
-                </button>
-              ))}
-            </div>
+            <p style={{ fontSize: 12.5, color: "var(--ink-3)", marginTop: 6, marginBottom: 10 }}>
+              {tSettings("languageHint")}
+            </p>
+            <LanguageSwitcher variant="default" />
           </div>
 
           <div

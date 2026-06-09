@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Navbar } from "@/components/layout/Navbar";
 import { Icon } from "@/components/shared/Icon";
 import { Stepper } from "@/components/shared/Stepper";
@@ -20,6 +21,9 @@ const LABELS = STEPS.map((s) => DOSSIER_STATUT_LABEL[s]);
 export default function ClientDashboardPage(): React.ReactElement {
   const params = useParams();
   const locale = (params?.locale as string) || "fr";
+  const t = useTranslations("dashboard.client");
+  const tNav = useTranslations("navbar");
+  const tQuick = useTranslations("dashboard.quickActions");
   const [user, setUser] = React.useState<any>(null);
   const [dossier, setDossier] = React.useState<any>(null);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -127,10 +131,10 @@ export default function ClientDashboardPage(): React.ReactElement {
   return (
     <>
       <Navbar
-        title="Tableau de bord"
-        breadcrumb="Espace client"
+        title={t("title")}
+        breadcrumb={t("breadcrumb")}
         switchRoleHref="/admin"
-        switchRoleLabel="Vue cabinet"
+        switchRoleLabel={tNav("switchToAvocat")}
       />
 
       <div className="page-fade page-pad">
@@ -179,10 +183,10 @@ export default function ClientDashboardPage(): React.ReactElement {
                 marginBottom: 10,
               }}
             >
-              {dossier ? `Dossier #${dossier.id.split('-')[0].toUpperCase()}` : "Aucun dossier actif"}
+              {dossier ? t("dossierLabel", { ref: dossier.id.split('-')[0].toUpperCase() }) : t("noActiveDossier")}
             </div>
             <h1 style={{ fontSize: 32, color: "var(--ink)", marginBottom: 8, fontWeight: 500, fontFamily: "var(--serif)", letterSpacing: "-0.02em" }}>
-              Bonjour <span className="gold-italic">{user?.prenom || "Client"}</span>,
+              {t("greeting")} <span className="gold-italic">{user?.prenom || "Client"}</span>,
             </h1>
             <p
               style={{
@@ -192,20 +196,25 @@ export default function ClientDashboardPage(): React.ReactElement {
                 lineHeight: 1.7,
               }}
             >
-              {dossier ? (
-                <>Votre dossier d&apos;acquisition à <strong style={{ color: "var(--ink)", fontWeight: 700 }}>{dossier.titre}</strong> est en cours de finalisation. Le notaire local a validé les pièces cette semaine — signature prévue le 24 mai.</>
-              ) : (
-                "Vous n'avez pas encore de dossier. Un avocat vous contactera sous peu."
-              )}
+              {dossier
+                ? t.rich("fileDescription", {
+                    title: dossier.titre,
+                    strong: (chunks) => (
+                      <strong style={{ color: "var(--ink)", fontWeight: 700 }}>
+                        {chunks}
+                      </strong>
+                    ),
+                  })
+                : t("noDossierMessage")}
             </p>
             <div style={{ marginTop: 22, display: "flex", gap: 12 }}>
               <Link href={`/${locale}/dossier`} className="btn btn-primary" style={{ borderRadius: 999, padding: "12px 24px" }}>
-                Voir mon dossier
+                {t("viewDossier")}
                 <Icon name="arrow-right" size={14} />
               </Link>
               <Link href={`/${locale}/messagerie`} className="btn btn-secondary" style={{ borderRadius: 999, padding: "12px 24px", borderColor: "var(--gold-line)" }}>
                 <Icon name="message" size={14} style={{ color: "var(--gold)" }} />
-                Contacter Maître Debuisson
+                {t("contactLawyer")}
               </Link>
             </div>
           </div>
@@ -243,14 +252,14 @@ export default function ClientDashboardPage(): React.ReactElement {
                   marginBottom: 4,
                 }}
               >
-                Avancement du dossier
+                {t("fileProgress")}
               </div>
-              <h3 style={{ fontSize: 18 }}>Étape {current + 1} sur 5 — {LABELS[current] || "Attente"}</h3>
+              <h3 style={{ fontSize: 18 }}>{t("step", { current: current + 1, total: 5 })} — {LABELS[current] || ""}</h3>
             </div>
             <div style={{ fontSize: 12, color: "var(--ink-3)" }}>
-              Dernière mise à jour :{" "}
+              {t("lastUpdate")} :{" "}
               <strong style={{ color: "var(--ink)" }}>
-                {dossier && dossier.updated_at ? new Date(dossier.updated_at).toLocaleDateString() : "Aujourd'hui"}
+                {dossier && dossier.updated_at ? new Date(dossier.updated_at).toLocaleDateString() : t("today")}
               </strong>
             </div>
           </div>
@@ -267,27 +276,27 @@ export default function ClientDashboardPage(): React.ReactElement {
           }}
         >
           <KPICard
-            label="Valeur d'acquisition"
+            label={t("acquisitionValue")}
             value={getAcquisitionValue()}
             icon="building"
             delta={getAcquisitionDelta()}
           />
           <KPICard
-            label="Documents signés"
+            label={t("signedDocuments")}
             value={`${docStats.signed}/${docStats.total}`}
             icon="check-circle"
-            delta={{ value: `${docStats.total - docStats.signed} restants`, label: "requis" }}
+            delta={{ value: `${docStats.total - docStats.signed} ${t("remaining")}`, label: t("required") }}
             accent={docStats.total - docStats.signed > 0 ? "warning" : "success"}
           />
           <KPICard
-            label="Factures réglées"
+            label={t("paidInvoices")}
             value={`${invoiceStats.paid}/${invoiceStats.total}`}
             icon="invoice"
-            delta={{ value: `${invoiceStats.unpaidAmount.toLocaleString('fr-FR')} €`, label: "en attente" }}
+            delta={{ value: `${invoiceStats.unpaidAmount.toLocaleString('fr-FR')} €`, label: t("pending") }}
             accent={invoiceStats.unpaidAmount > 0 ? "warning" : "success"}
           />
           <KPICard
-            label="Prochaine étape"
+            label={t("nextStep")}
             value={getNextStepInfo().value}
             icon="calendar"
             delta={getNextStepInfo().delta}
@@ -306,10 +315,10 @@ export default function ClientDashboardPage(): React.ReactElement {
           <div className="card" style={{ padding: 28 }}>
             <PageHeader
               eyebrow="Suivi"
-              title="Activité récente"
+              title={t("recentActivity")}
               action={
                 <a className="tab-link active" style={{ fontSize: 12 }}>
-                  Tout voir
+                  {t("seeAll")}
                 </a>
               }
             />
@@ -329,9 +338,9 @@ export default function ClientDashboardPage(): React.ReactElement {
                     marginBottom: 4,
                   }}
                 >
-                  À faire
+                  {tQuick("eyebrow")}
                 </div>
-                <h3 style={{ fontSize: 18, fontWeight: 700 }}>Actions rapides</h3>
+                <h3 style={{ fontSize: 18, fontWeight: 700 }}>{tQuick("title")}</h3>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                 <Link
@@ -344,7 +353,7 @@ export default function ClientDashboardPage(): React.ReactElement {
                   }}
                 >
                   <span style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                    <Icon name="edit" size={15} /> {docStats.total - docStats.signed > 0 ? `Signer ${docStats.total - docStats.signed} document(s)` : "Signer les documents"}
+                    <Icon name="edit" size={15} /> {docStats.total - docStats.signed > 0 ? tQuick("signDocumentsCount", { count: docStats.total - docStats.signed }) : tQuick("signDocuments")}
                   </span>
                   {docStats.total - docStats.signed > 0 && (
                     <span
@@ -357,7 +366,7 @@ export default function ClientDashboardPage(): React.ReactElement {
                         border: "none",
                       }}
                     >
-                      Urgent
+                      {tQuick("urgent")}
                     </span>
                   )}
                 </Link>
@@ -372,7 +381,7 @@ export default function ClientDashboardPage(): React.ReactElement {
                 >
                   <span style={{ display: "flex", gap: 10, alignItems: "center" }}>
                     <Icon name="credit-card" size={15} style={{ color: "var(--gold)" }} />{" "}
-                    Régler une facture
+                    {tQuick("payInvoice")}
                   </span>
                   <Icon name="arrow-right" size={14} style={{ color: "var(--ink-3)" }} />
                 </Link>
@@ -387,7 +396,7 @@ export default function ClientDashboardPage(): React.ReactElement {
                 >
                   <span style={{ display: "flex", gap: 10, alignItems: "center" }}>
                     <Icon name="calendar" size={15} style={{ color: "var(--gold)" }} />{" "}
-                    Réserver un rendez-vous
+                    {tQuick("bookAppointment")}
                   </span>
                   <Icon name="arrow-right" size={14} style={{ color: "var(--ink-3)" }} />
                 </Link>
@@ -402,7 +411,7 @@ export default function ClientDashboardPage(): React.ReactElement {
                 >
                   <span style={{ display: "flex", gap: 10, alignItems: "center" }}>
                     <Icon name="upload" size={15} style={{ color: "var(--gold)" }} />{" "}
-                    Téléverser un justificatif
+                    {tQuick("uploadDocument")}
                   </span>
                   <Icon name="arrow-right" size={14} style={{ color: "var(--ink-3)" }} />
                 </Link>
@@ -433,7 +442,7 @@ export default function ClientDashboardPage(): React.ReactElement {
                   marginBottom: 14,
                 }}
               >
-                Votre conseil
+                {t("yourCounsel")}
               </div>
               <div
                 style={{
@@ -468,7 +477,7 @@ export default function ClientDashboardPage(): React.ReactElement {
                       fontWeight: 500,
                     }}
                   >
-                    Associée · Droit immobilier UAE
+                    {t("partnerLawyer")}
                   </div>
                 </div>
               </div>
@@ -491,7 +500,7 @@ export default function ClientDashboardPage(): React.ReactElement {
                 className="btn btn-primary"
                 style={{ width: "100%", justifyContent: "center" }}
               >
-                <Icon name="message" size={14} /> Envoyer un message
+                <Icon name="message" size={14} /> {t("sendMessage")}
               </Link>
             </div>
           </div>

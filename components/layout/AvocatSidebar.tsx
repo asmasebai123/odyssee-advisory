@@ -3,23 +3,31 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname, useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Icon, type IconName } from "@/components/shared/Icon";
 import { Logotype } from "@/components/shared/OAMark";
+import { LanguageSwitcher } from "@/components/shared/LanguageSwitcher";
 
 interface NavItem {
   href: string;
-  label: string;
+  labelKey:
+    | "dashboard"
+    | "dossiers"
+    | "clients"
+    | "factures"
+    | "journal"
+    | "settings";
   icon: IconName;
   badge?: number;
 }
 
 const NAV: NavItem[] = [
-  { href: "/admin/dashboard", label: "Vue d'ensemble", icon: "dashboard" },
-  { href: "/admin", label: "Dossiers", icon: "folder", badge: 12 },
-  { href: "/clients", label: "Clients", icon: "users" },
-  { href: "/admin/factures", label: "Facturation", icon: "invoice" },
-  { href: "/admin/journal", label: "Journal d'audit", icon: "clock" },
-  { href: "/admin/parametres", label: "Paramètres", icon: "settings" },
+  { href: "/admin/dashboard", labelKey: "dashboard", icon: "dashboard" },
+  { href: "/admin", labelKey: "dossiers", icon: "folder", badge: 12 },
+  { href: "/clients", labelKey: "clients", icon: "users" },
+  { href: "/admin/factures", labelKey: "factures", icon: "invoice" },
+  { href: "/admin/journal", labelKey: "journal", icon: "clock" },
+  { href: "/admin/parametres", labelKey: "settings", icon: "settings" },
 ];
 
 export interface AvocatSidebarProps {
@@ -39,6 +47,8 @@ export const AvocatSidebar: React.FC<AvocatSidebarProps> = ({
   const pathname = usePathname();
   const params = useParams();
   const locale = (params?.locale as string) || "fr";
+  const tNav = useTranslations("sidebar.avocat");
+  const tSidebar = useTranslations("sidebar");
 
   return (
     <aside
@@ -73,7 +83,7 @@ export const AvocatSidebar: React.FC<AvocatSidebarProps> = ({
           fontWeight: 600,
         }}
       >
-        Cabinet
+        {tSidebar("cabinet")}
       </div>
 
       <nav style={{ flex: 1, paddingTop: 4 }}>
@@ -89,7 +99,7 @@ export const AvocatSidebar: React.FC<AvocatSidebarProps> = ({
               <span className="nav-icon">
                 <Icon name={item.icon} size={18} />
               </span>
-              <span style={{ flex: 1 }}>{item.label}</span>
+              <span style={{ flex: 1 }}>{tNav(item.labelKey)}</span>
               {item.badge && (
                 <span
                   style={{
@@ -111,10 +121,21 @@ export const AvocatSidebar: React.FC<AvocatSidebarProps> = ({
         })}
       </nav>
 
+      {/* Sélecteur de langue */}
       <div
         style={{
-          padding: "18px 22px",
+          padding: "12px 22px",
           borderTop: "1px solid var(--border-dark)",
+          display: "flex",
+          justifyContent: "center",
+        }}
+      >
+        <LanguageSwitcher variant="sidebar" />
+      </div>
+
+      <div
+        style={{
+          padding: "12px 22px 18px",
         }}
       >
         <div
@@ -126,7 +147,7 @@ export const AvocatSidebar: React.FC<AvocatSidebarProps> = ({
                 process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
               );
               await supabase.auth.signOut();
-              window.location.href = "/login";
+              window.location.href = `/${locale}/login`;
             } catch (err) {
               console.error("Signout error:", err);
             }

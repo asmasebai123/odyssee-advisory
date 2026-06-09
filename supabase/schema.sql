@@ -205,6 +205,10 @@ drop policy if exists notifications_access on public.notifications;
 create policy notifications_access on public.notifications for select
   to authenticated using (user_id = auth.uid());
 
+drop policy if exists notifications_update on public.notifications;
+create policy notifications_update on public.notifications for update
+  to authenticated using (user_id = auth.uid()) with check (user_id = auth.uid());
+
 -- AUDIT LOG : avocat uniquement.
 drop policy if exists audit_avocat on public.audit_log;
 create policy audit_avocat on public.audit_log for select

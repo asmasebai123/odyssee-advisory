@@ -6,8 +6,12 @@ import { Icon } from "@/components/shared/Icon";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { MessageThread, type Message } from "@/components/dossier/MessageThread";
 import { createBrowserClient } from "@supabase/ssr";
+import { useTranslations } from "next-intl";
 
 export default function MessageriePage(): React.ReactElement {
+  const tPage = useTranslations("messageriePage");
+  const tNav = useTranslations("navbar");
+  
   const [messages, setMessages] = React.useState<Message[]>([]);
   const [inputText, setInputText] = React.useState("");
   const [user, setUser] = React.useState<any>(null);
@@ -108,10 +112,10 @@ export default function MessageriePage(): React.ReactElement {
   return (
     <>
       <Navbar
-        title="Messagerie"
-        breadcrumb="Espace client"
+        title={tPage("title")}
+        breadcrumb={tPage("breadcrumb")}
         switchRoleHref="/admin"
-        switchRoleLabel="Vue cabinet"
+        switchRoleLabel={tNav("switchToAvocat")}
       />
 
       <div className="page-fade page-pad">
@@ -140,9 +144,9 @@ export default function MessageriePage(): React.ReactElement {
                   marginBottom: 4,
                 }}
               >
-                Conversations
+                {tPage("conversations")}
               </div>
-              <h2 style={{ fontSize: 18 }}>Boîte de réception</h2>
+              <h2 style={{ fontSize: 18 }}>{tPage("inbox")}</h2>
             </div>
 
             <div style={{ display: "flex", flexDirection: "column" }}>
@@ -178,7 +182,7 @@ export default function MessageriePage(): React.ReactElement {
                         color: "var(--ink)",
                       }}
                     >
-                      Cabinet Odyssée
+                      {tPage("firmName")}
                     </span>
                   </div>
                   <div
@@ -190,7 +194,7 @@ export default function MessageriePage(): React.ReactElement {
                       whiteSpace: "nowrap",
                     }}
                   >
-                    Dossier en cours
+                    {tPage("currentDossier")}
                   </div>
                 </div>
               </button>
@@ -200,11 +204,11 @@ export default function MessageriePage(): React.ReactElement {
           {/* Thread */}
           <div className="card" style={{ padding: 28 }}>
             <PageHeader
-              eyebrow="Échanges"
-              title="Conversation sécurisée"
+              eyebrow={tPage("exchanges")}
+              title={tPage("secureChat")}
               action={
                 <span className="badge badge-success">
-                  <Icon name="shield" size={11} /> Chiffré E2E
+                  <Icon name="shield" size={11} /> {tPage("encrypted")}
                 </span>
               }
             />
@@ -221,7 +225,7 @@ export default function MessageriePage(): React.ReactElement {
               }}
             >
               <input
-                placeholder="Écrire un message…"
+                placeholder={tPage("writeMessage")}
                 value={inputText}
                 onChange={(e) => setInputText(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSend()}
@@ -238,7 +242,7 @@ export default function MessageriePage(): React.ReactElement {
                 className="btn btn-sm btn-primary"
                 disabled={!dossierId}
               >
-                <Icon name="send" size={12} /> Envoyer
+                <Icon name="send" size={12} /> {tPage("send")}
               </button>
             </div>
           </div>

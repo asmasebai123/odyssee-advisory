@@ -7,6 +7,7 @@ import { FileCard, type FileCardDoc } from "@/components/documents/FileCard";
 import { createBrowserClient } from "@supabase/ssr";
 import { useRouter, useParams } from "next/navigation";
 import { SignatureModal } from "@/components/documents/SignatureModal";
+import { useTranslations } from "next-intl";
 
 interface Tab {
   id: string;
@@ -21,6 +22,9 @@ const TABS: Tab[] = [
 ];
 
 export default function DocumentsPage(): React.ReactElement {
+  const tPage = useTranslations("documentsPage");
+  const tNav = useTranslations("navbar");
+  
   const router = useRouter();
   const params = useParams();
   const locale = (params?.locale as string) || "fr";
@@ -30,6 +34,13 @@ export default function DocumentsPage(): React.ReactElement {
   const [isUploading, setIsUploading] = React.useState(false);
   const [activeSignDoc, setActiveSignDoc] = React.useState<{ id: string; name: string } | null>(null);
   const [isSigning, setIsSigning] = React.useState(false);
+
+  const TABS_KEYS: Record<string, string> = {
+    contrat: "tabContrats",
+    facture: "tabFactures",
+    juridique: "tabJuridique",
+    autre: "tabAutres"
+  };
 
   const handleSignDocument = (docId: string) => {
     const doc = docs.find(d => d.id === docId);
@@ -271,10 +282,10 @@ export default function DocumentsPage(): React.ReactElement {
   return (
     <>
       <Navbar
-        title="Documents"
-        breadcrumb="Espace client · Bibliothèque"
+        title={tPage("title")}
+        breadcrumb={tPage("breadcrumb")}
         switchRoleHref="/admin"
-        switchRoleLabel="Vue cabinet"
+        switchRoleLabel={tNav("switchToAvocat")}
       />
 
       <div className="page-fade page-pad">
@@ -297,14 +308,14 @@ export default function DocumentsPage(): React.ReactElement {
             </div>
             <div style={{ flex: 1 }}>
               <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase", marginBottom: 2 }}>
-                Action requise
+                {tPage("actionRequired")}
               </div>
               <div style={{ fontFamily: "var(--serif)", fontSize: 20, fontWeight: 500 }}>
-                Des documents sont en attente de signature
+                {tPage("pendingSignatures")}
               </div>
             </div>
             <button className="btn btn-dark">
-              Consulter <Icon name="arrow-right" size={14} />
+              {tPage("consult")} <Icon name="arrow-right" size={14} />
             </button>
           </div>
         )}
@@ -313,7 +324,7 @@ export default function DocumentsPage(): React.ReactElement {
         {pendingRequests.length > 0 && (
           <div style={{ marginBottom: 32 }}>
             <h3 style={{ fontSize: 12, fontWeight: 700, marginBottom: 16, color: "var(--gold)", letterSpacing: "0.15em", textTransform: "uppercase" }}>
-              📋 Pièces justificatives demandées par le cabinet
+              {tPage("requestedDocs")}
             </h3>
             <div
               style={{
@@ -364,7 +375,7 @@ export default function DocumentsPage(): React.ReactElement {
                         {d.nom}
                       </div>
                       <div style={{ fontSize: 11, color: "var(--ink-3)", marginTop: 4 }}>
-                        Requis le {new Date(d.created_at).toLocaleDateString()}
+                        {tPage("requestedOn", { date: new Date(d.created_at).toLocaleDateString() })}
                       </div>
                     </div>
                   </div>
@@ -377,7 +388,7 @@ export default function DocumentsPage(): React.ReactElement {
                       borderTop: "1px solid var(--border)",
                     }}
                   >
-                    <span className="badge badge-warn">En attente</span>
+                    <span className="badge badge-warn">{tPage("pending")}</span>
                     <label
                       className="btn btn-primary btn-sm"
                       style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", fontSize: 12 }}
@@ -388,7 +399,7 @@ export default function DocumentsPage(): React.ReactElement {
                         style={{ display: "none" }}
                         onChange={(e) => handleFileUploadForRequest(e, d)}
                       />
-                      <Icon name="upload" size={11} /> Déposer
+                      <Icon name="upload" size={11} /> {tPage("upload")}
                     </label>
                   </div>
                 </div>
@@ -415,7 +426,7 @@ export default function DocumentsPage(): React.ReactElement {
                 className={"tab-link " + (tab === t.id ? "active" : "")}
                 onClick={() => setTab(t.id)}
               >
-                {t.label}
+                {tPage(TABS_KEYS[t.id])}
                 <span
                   style={{
                     marginLeft: 8,
@@ -487,10 +498,10 @@ export default function DocumentsPage(): React.ReactElement {
               <Icon name="upload" size={22} />
             </div>
             <div style={{ fontFamily: "var(--serif)", fontSize: 17 }}>
-              {isUploading ? "Envoi en cours..." : "Téléverser un document"}
+              {isUploading ? tPage("uploading") : tPage("uploadZoneTitle")}
             </div>
             <div style={{ fontSize: 12, color: "var(--ink-3)" }}>
-              Sera classé dans : <strong>{TABS.find(t => t.id === tab)?.label}</strong>
+              {tPage("uploadZoneSub", { tab: tPage(TABS_KEYS[tab]) })}
             </div>
           </label>
         </div>

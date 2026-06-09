@@ -867,3 +867,180 @@ a {
     padding-right: 14px !important;
   }
 }
+
+/* =====================================================================
+   RTL — ajustements pour l'arabe (`<html dir="rtl">`)
+   ===================================================================== */
+[dir="rtl"] body {
+  text-align: right;
+}
+[dir="rtl"] .nav-item {
+  border-left: none;
+  border-right: 2px solid transparent;
+}
+[dir="rtl"] .nav-item.active {
+  border-right-color: var(--gold);
+}
+/* Le tiroir mobile s'ouvre depuis la droite en RTL */
+@media (max-width: 980px) {
+  [dir="rtl"] .sidebar-col {
+    left: auto;
+    right: 0;
+    transform: translateX(100%);
+  }
+  [dir="rtl"] .sidebar-col.open {
+    transform: translateX(0);
+  }
+  /* Côté contenu : la sidebar n'est plus à gauche, donc on enlève la bordure droite */
+  [dir="rtl"] aside {
+    border-right: none;
+    border-left: 1px solid var(--sidebar-line);
+  }
+}
+
+/* =====================================================================
+   Mobile polish — typographie fluide, espacements tendres, cibles tactiles
+   ===================================================================== */
+
+@media (max-width: 980px) {
+  /* Tailles de titres fluides — se réduisent avec la largeur du viewport */
+  h1 {
+    font-size: clamp(22px, 5.5vw, 32px) !important;
+    line-height: 1.15 !important;
+  }
+  h2 {
+    font-size: clamp(18px, 4.4vw, 22px) !important;
+    line-height: 1.2 !important;
+  }
+  h3 {
+    font-size: clamp(15px, 3.6vw, 18px) !important;
+    line-height: 1.25 !important;
+  }
+
+  /* Hero card plus compact sur mobile */
+  .hero-card {
+    padding: 22px 20px !important;
+    flex-wrap: wrap !important;
+    gap: 16px !important;
+  }
+  /* Les cercles décoratifs (divs en absolute avec border-radius 50%) restent
+     mais on les rétrécit pour ne pas voler l'espace */
+  .hero-card > div[style*="border-radius: 50%"],
+  .hero-card > div[style*="border-radius:50%"] {
+    transform: scale(0.6);
+    transform-origin: top right;
+    opacity: 0.6;
+  }
+
+  /* Cible tactile minimum 44px sur les boutons et les boutons-Link */
+  .btn,
+  a.btn {
+    min-height: 44px;
+    padding-top: 11px;
+    padding-bottom: 11px;
+  }
+  .btn-sm,
+  a.btn-sm {
+    min-height: 36px;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+
+  /* Tightens vertical rhythm */
+  .page-pad {
+    padding-top: 16px !important;
+    padding-bottom: 32px !important;
+  }
+  /* Gros chiffres KPI un peu plus petits sur mobile */
+  .kpi-value,
+  [class*="kpi"] [style*="font-size: 30"],
+  [class*="kpi"] [style*="font-size: 32"],
+  [class*="kpi"] [style*="font-size: 34"] {
+    font-size: 26px !important;
+  }
+}
+
+@media (max-width: 560px) {
+  /* Hero card encore plus serré sur petit téléphone */
+  .hero-card {
+    padding: 18px 16px !important;
+  }
+  /* Les boutons des actions rapides occupent toute la largeur de la carte */
+  .hero-card .btn,
+  .hero-card a.btn {
+    width: 100%;
+    justify-content: center !important;
+  }
+  /* Cacher les éléments purement décoratifs des hero cards
+     (divs en absolute avec border-radius 50%) qui prennent de la place
+     sans valeur ajoutée sur écran < 360px → on les retire pour mieux respirer */
+  .hero-card > div[style*="border-radius: 50%"],
+  .hero-card > div[style*="border-radius:50%"] {
+    display: none;
+  }
+
+  /* Réduit la taille du logotype dans l'en-tête de la sidebar */
+  aside [class*="oa-mark"],
+  aside [class*="Logotype"] {
+    font-size: 14px;
+  }
+
+  /* Les badges sur petits écrans : un peu plus petits */
+  .badge {
+    font-size: 9.5px !important;
+    padding: 3px 8px !important;
+  }
+
+  /* Topbar plus compact sur mobile */
+  .topbar h1 {
+    font-size: 16px !important;
+  }
+
+  /* Resserrement vertical entre les sections */
+  [style*="marginTop: 24"],
+  [style*="marginTop:24"] {
+    margin-top: 16px !important;
+  }
+  [style*="marginTop: 28"],
+  [style*="marginTop:28"] {
+    margin-top: 18px !important;
+  }
+  [style*="gap: 20"],
+  [style*="gap:20"] {
+    gap: 14px !important;
+  }
+  [style*="gap: 24"],
+  [style*="gap:24"] {
+    gap: 16px !important;
+  }
+
+  /* Cible tactile sur les boutons icône seuls */
+  button[title],
+  a[title] {
+    min-height: 40px;
+    min-width: 40px;
+  }
+
+  /* Inputs plus confortables au doigt */
+  input,
+  textarea,
+  select {
+    font-size: 16px !important; /* évite le zoom auto iOS */
+    min-height: 42px;
+  }
+  /* …mais on revient à la taille normale pour les inputs internes des boutons (rare) */
+  .btn input,
+  .btn-sm input {
+    font-size: 13px !important;
+    min-height: 0;
+  }
+
+  /* Respecter la safe-area des téléphones à encoche en bas */
+  body {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  /* …et en haut pour la sticky topbar */
+  .topbar {
+    padding-top: env(safe-area-inset-top);
+  }
+}

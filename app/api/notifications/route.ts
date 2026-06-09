@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createClient as createAdminClient } from "@supabase/supabase-js";
 
 /**
  * GET /api/notifications — list the current user's notifications.
@@ -40,9 +41,12 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
 
   const body = (await request.json()) as { id: string };
 
-  const { error } = await supabase
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+  const admin = createAdminClient(supabaseUrl, serviceKey);
+
+  const { error } = await admin
     .from("notifications")
-    // Cast required until `supabase gen types` is run against the real schema.
     .update({ lu: true } as never)
     .eq("id", body.id)
     .eq("user_id", user.id);

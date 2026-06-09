@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages } from "next-intl/server";
+import { HtmlDir } from "@/components/i18n/HtmlDir";
 
 export const metadata: Metadata = {
   title: "Odyssée Advisory",
@@ -18,7 +19,8 @@ export default async function LocaleLayout({
   const messages = await getMessages();
 
   return (
-    <NextIntlClientProvider messages={messages}>
+    <NextIntlClientProvider messages={messages} locale={locale}>
+      <HtmlDir locale={locale} />
       {children}
     </NextIntlClientProvider>
   );

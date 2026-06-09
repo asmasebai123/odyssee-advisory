@@ -97,6 +97,26 @@ export async function POST(
 
       await logAudit("facture_emise", `Facture ${invoiceRef} de ${Number(montant)} € émise.`);
 
+      // Notifier le client
+      try {
+        const { data: dossierInfo } = await supabase
+          .from("dossiers")
+          .select("client_id")
+          .eq("id", dossierId)
+          .single();
+
+        if (dossierInfo?.client_id) {
+          await supabase.from("notifications").insert({
+            user_id: dossierInfo.client_id,
+            message: `Une nouvelle facture d'un montant de ${Number(montant)} € a été émise (${invoiceRef}).`,
+            type: "invoice",
+            lu: false,
+          });
+        }
+      } catch (err) {
+        console.error("Failed to notify client on invoice:", err);
+      }
+
       return NextResponse.json({
         success: true,
         message: "Facture émise avec succès.",
@@ -125,7 +145,7 @@ export async function POST(
 
       if (error) throw new Error("Document request error: " + error.message);
 
-      // Notification par e-mail
+      // Notification par e-mail et DB
       try {
         const { data: dossierInfo } = await supabase
           .from("dossiers")
@@ -147,9 +167,17 @@ export async function POST(
               nom.trim()
             );
           }
+
+          // Notification database au client
+          await supabase.from("notifications").insert({
+            user_id: dossierInfo.client_id,
+            message: `Votre avocat a demandé une pièce justificative : « ${nom.trim()} ».`,
+            type: "document",
+            lu: false,
+          });
         }
       } catch (emailErr) {
-        console.error("Failed to send document request email:", emailErr);
+        console.error("Failed to send document request email/db notification:", emailErr);
       }
 
       await logAudit("document_demande", `Pièce demandée au client : « ${nom.trim()} ».`);
@@ -176,7 +204,7 @@ export async function POST(
 
       if (error) throw new Error("Status update error: " + error.message);
 
-      // Notification par e-mail
+      // Notification par e-mail et DB
       try {
         const { data: dossierInfo } = await supabase
           .from("dossiers")
@@ -199,9 +227,27 @@ export async function POST(
               statut
             );
           }
+
+          // Notification database au client
+          const statusLabels: Record<string, string> = {
+            demande: "Demande",
+            en_analyse: "En analyse",
+            pieces_manquantes: "Pièces manquantes",
+            devis: "Devis émis",
+            en_cours: "Dossier en cours",
+            valide: "Dossier validé",
+            cloture: "Dossier clôturé"
+          };
+          const friendlyStatus = statusLabels[statut] || statut;
+          await supabase.from("notifications").insert({
+            user_id: dossierInfo.client_id,
+            message: `Le statut de votre dossier a été mis à jour : « ${friendlyStatus} ».`,
+            type: "status",
+            lu: false,
+          });
         }
       } catch (emailErr) {
-        console.error("Failed to send status update email:", emailErr);
+        console.error("Failed to send status update email/db notification:", emailErr);
       }
 
       await logAudit("statut_change", `Statut du dossier passé à « ${statut} ».`);
@@ -267,6 +313,26 @@ export async function POST(
         });
 
       if (error) throw new Error("Message insert error: " + error.message);
+
+      // Notifier le client
+      try {
+        const { data: dossierInfo } = await supabase
+          .from("dossiers")
+          .select("client_id")
+          .eq("id", dossierId)
+          .single();
+
+        if (dossierInfo?.client_id) {
+          await supabase.from("notifications").insert({
+            user_id: dossierInfo.client_id,
+            message: `Nouveau message de votre avocat : « ${contenu.trim().slice(0, 50)}${contenu.trim().length > 50 ? "..." : ""} ».`,
+            type: "message",
+            lu: false,
+          });
+        }
+      } catch (err) {
+        console.error("Failed to notify client on message:", err);
+      }
 
       return NextResponse.json({
         success: true,

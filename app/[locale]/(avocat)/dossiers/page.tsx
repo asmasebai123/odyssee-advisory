@@ -10,6 +10,8 @@ import {
   DOSSIER_STATUT_LABEL,
   type DossierStatut,
 } from "@/types/dossier";
+import { useTranslations } from "next-intl";
+import { useParams } from "next/navigation";
 
 const STATUSES: DossierStatut[] = DOSSIER_STATUT_ORDER;
 
@@ -90,6 +92,10 @@ const FIN: ReadonlyArray<readonly [string, string, boolean?]> = [
 const TAGS = ["Immobilier", "Dubai Marina", "Freehold", "HNW", "France→UAE", "DIFC"];
 
 export default function LawyerDossierPage(): React.ReactElement {
+  const params = useParams();
+  const t = useTranslations("adminPage");
+  const tCommon = useTranslations("common");
+  const tNav = useTranslations("navbar");
   const [status, setStatus] = React.useState<DossierStatut>("en_cours");
   const [statusOpen, setStatusOpen] = React.useState(false);
   const [note, setNote] = React.useState<string>(
@@ -99,10 +105,10 @@ export default function LawyerDossierPage(): React.ReactElement {
   return (
     <>
       <Navbar
-        title="Gestion du dossier"
-        breadcrumb="Cabinet · Dossiers"
+        title={t("dossiers")}
+        breadcrumb={t("breadcrumb")}
         switchRoleHref="/dashboard"
-        switchRoleLabel="Vue client"
+        switchRoleLabel={tNav("switchToClient")}
         initials="PD"
       />
 
@@ -140,10 +146,10 @@ export default function LawyerDossierPage(): React.ReactElement {
           </div>
           <div style={{ display: "flex", gap: 8 }}>
             <button className="btn btn-secondary">
-              <Icon name="message" size={14} /> Message au client
+              <Icon name="message" size={14} /> {tCommon("view")}
             </button>
             <button className="btn btn-primary">
-              <Icon name="send" size={14} /> Envoyer un devis
+              <Icon name="send" size={14} /> {tCommon("save")}
             </button>
             <button className="btn btn-secondary">
               <Icon name="more" size={14} />
@@ -379,7 +385,7 @@ export default function LawyerDossierPage(): React.ReactElement {
                 <div style={{ fontSize: 11, color: "var(--ink-3)" }}>
                   Dernière modification · il y a 2 h par Pierre Debuisson
                 </div>
-                <button className="btn btn-sm btn-primary">Enregistrer</button>
+                <button className="btn btn-sm btn-primary">{tCommon("save")}</button>
               </div>
             </div>
 

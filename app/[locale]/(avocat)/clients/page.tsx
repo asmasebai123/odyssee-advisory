@@ -7,10 +7,14 @@ import { Icon } from "@/components/shared/Icon";
 import { StatusBadge, type StatusKey } from "@/components/shared/StatusBadge";
 import { NewClientModal } from "@/components/admin/NewClientModal";
 import { useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 export default function ClientsListPage(): React.ReactElement {
   const params = useParams();
   const locale = (params?.locale as string) || "fr";
+  const t = useTranslations("adminPage");
+  const tCommon = useTranslations("common");
+  const tNav = useTranslations("navbar");
 
   const [clients, setClients] = React.useState<any[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
@@ -69,10 +73,10 @@ export default function ClientsListPage(): React.ReactElement {
   return (
     <>
       <Navbar
-        title="Clients"
-        breadcrumb="Cabinet"
+        title={t("tableClient")}
+        breadcrumb={t("breadcrumb")}
         switchRoleHref="/dashboard"
-        switchRoleLabel="Vue client"
+        switchRoleLabel={tNav("switchToClient")}
         initials="OA"
       />
 
@@ -116,7 +120,7 @@ export default function ClientsListPage(): React.ReactElement {
               >
                 <Icon name="search" size={14} style={{ color: "var(--ink-3)" }} />
                 <input
-                  placeholder="Rechercher un client…"
+                  placeholder={tCommon("search") + "…"}
                   style={{
                     border: "none",
                     outline: "none",
@@ -130,24 +134,24 @@ export default function ClientsListPage(): React.ReactElement {
                 className="btn btn-sm btn-primary"
                 onClick={() => setShowNewClient(true)}
               >
-                <Icon name="plus" size={12} /> Nouveau client
+                <Icon name="plus" size={12} /> {t("newClient")}
               </button>
             </div>
           </div>
           <table className="table-clean" style={{ width: "100%", textAlign: "left" }}>
             <thead>
               <tr style={{ borderBottom: "1px solid var(--border)", color: "var(--ink-3)", fontSize: 12, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                <th style={{ padding: "12px 28px" }}>Client</th>
-                <th style={{ padding: "12px 0" }}>Dossiers Actifs</th>
-                <th style={{ padding: "12px 0" }}>Dernière Activité</th>
-                <th style={{ padding: "12px 0" }}>Statut</th>
+                <th style={{ padding: "12px 28px" }}>{t("tableClient")}</th>
+                <th style={{ padding: "12px 0" }}>{t("kpi.activeDossiers")}</th>
+                <th style={{ padding: "12px 0" }}>{tCommon("updatedAt")}</th>
+                <th style={{ padding: "12px 0" }}>{t("tableStatus")}</th>
                 <th style={{ padding: "12px 28px", textAlign: "right" }}></th>
               </tr>
             </thead>
             <tbody>
               {isLoading && (
                 <tr>
-                  <td colSpan={5} style={{ textAlign: "center", padding: "20px" }}>Chargement...</td>
+                  <td colSpan={5} style={{ textAlign: "center", padding: "20px" }}>{tCommon("loading")}</td>
                 </tr>
               )}
               {clients.map((c, i) => {
@@ -177,7 +181,7 @@ export default function ClientsListPage(): React.ReactElement {
                           #{latestDossier.id.split('-')[0].toUpperCase()}
                         </Link>
                       ) : (
-                        <span style={{ color: "var(--ink-3)" }}>Aucun dossier</span>
+                        <span style={{ color: "var(--ink-3)" }}>{t("noDossierFound")}</span>
                       )}
                     </td>
                     <td style={{ padding: "16px 0", fontSize: 13, color: "var(--ink-2)" }}>

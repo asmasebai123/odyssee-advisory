@@ -8,6 +8,7 @@ import { StatusBadge } from "@/components/shared/StatusBadge";
 import { DOSSIER_STATUT_LABEL, type DossierStatut } from "@/types/dossier";
 import { createBrowserClient } from "@supabase/ssr";
 import { useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
 
 interface Dossier {
@@ -24,31 +25,29 @@ interface Dossier {
 export default function AdminDashboardPage() {
   const params = useParams();
   const locale = (params?.locale as string) || "fr";
+  const t = useTranslations("adminPage");
+  const tNav = useTranslations("navbar");
+  const tCommon = useTranslations("common");
 
   const [dossiers, setDossiers] = React.useState<Dossier[]>([]);
   const [filteredDossiers, setFilteredDossiers] = React.useState<Dossier[]>([]);
   const [kpis, setKpis] = React.useState({ actifs: 0, attente: 0, cloture: 0, totalMontant: 0 });
   const [isLoading, setIsLoading] = React.useState(true);
 
-  // Deletion state
   const [dossierToDelete, setDossierToDelete] = React.useState<Dossier | null>(null);
   const [isDeleting, setIsDeleting] = React.useState(false);
 
-  // Search & Filter
   const [searchTerm, setSearchTerm] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState<string>("all");
 
-  // Modal State
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [successCreds, setSuccessCreds] = React.useState<any>(null);
 
-  // Client Selection / Mode
   const [clientMode, setClientMode] = React.useState<"new" | "existing">("new");
   const [allClients, setAllClients] = React.useState<any[]>([]);
   const [selectedClientId, setSelectedClientId] = React.useState("");
 
-  // Form Fields
   const [formEmail, setFormEmail] = React.useState("");
   const [formPrenom, setFormPrenom] = React.useState("");
   const [formNom, setFormNom] = React.useState("");
@@ -93,9 +92,7 @@ export default function AdminDashboardPage() {
       const totalAmount = dossiersList.reduce((acc, curr) => acc + (curr.montant || 0), 0);
 
       setKpis({
-        actifs: dossiersList.filter(
-          (d) => d.statut !== "cloture"
-        ).length,
+        actifs: dossiersList.filter((d) => d.statut !== "cloture").length,
         attente: dossiersList.filter((d) =>
           ["demande", "en_analyse", "pieces_manquantes"].includes(d.statut)
         ).length,
@@ -126,7 +123,6 @@ export default function AdminDashboardPage() {
     loadData();
   }, [loadData]);
 
-  // Apply search & filter
   React.useEffect(() => {
     let result = dossiers;
 
@@ -191,12 +187,9 @@ export default function AdminDashboardPage() {
     setSuccessCreds(null);
 
     try {
-      // 1. Create client user account and dossier atomically via secure Server API
       const res = await fetch("/api/admin/create-client", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: formEmail,
           prenom: formPrenom,
@@ -214,14 +207,12 @@ export default function AdminDashboardPage() {
         throw new Error(clientRes.error || "Erreur de création du dossier.");
       }
 
-      // 2. Success handling
       if (clientRes.credentials) {
         setSuccessCreds(clientRes.credentials);
       } else {
-        setSuccessCreds({ email: formEmail, password: "password123 (existant)" });
+        setSuccessCreds({ email: formEmail, password: "(Existant / Déjà configuré)" });
       }
 
-      // Reset form
       setFormEmail("");
       setFormPrenom("");
       setFormNom("");
@@ -230,7 +221,6 @@ export default function AdminDashboardPage() {
       setFormMontant("");
       setFormStatut("demande");
 
-      // Reload list
       await loadData();
       setIsModalOpen(false);
 
@@ -245,9 +235,7 @@ export default function AdminDashboardPage() {
     if (!dossierToDelete) return;
     setIsDeleting(true);
     try {
-      const res = await fetch(`/api/admin/dossiers/${dossierToDelete.id}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(`/api/admin/dossiers/${dossierToDelete.id}`, { method: "DELETE" });
       const data = await res.json();
       if (!data.success) throw new Error(data.error || "Erreur de suppression.");
       setDossierToDelete(null);
@@ -260,44 +248,32 @@ export default function AdminDashboardPage() {
   };
 
   const formatEuro = (val: number) => {
-    if (val >= 1000000) {
-      return `${(val / 1000000).toFixed(2)}M €`;
-    }
+    if (val >= 1000000) return `${(val / 1000000).toFixed(2)}M €`;
     return `${val.toLocaleString("fr-FR")} €`;
   };
 
   return (
     <>
       <Navbar
-        title="Superadmin"
-        breadcrumb="Cabinet Odyssée · Tous les dossiers"
+        title={t("title")}
+        breadcrumb={t("breadcrumb")}
         switchRoleHref="/dashboard"
-        switchRoleLabel="Vue client"
+        switchRoleLabel={tNav("switchToClient")}
         initials="PD"
       />
 
       <div className="page-fade page-pad">
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 32 }}>
           <div>
-            <h1
-              style={{
-                fontSize: 28,
-                color: "var(--ink)",
-                marginBottom: 8,
-                fontWeight: 700,
-              }}
-            >
-              Tableau de Bord Cabinet
+            <h1 style={{ fontSize: 28, color: "var(--ink)", marginBottom: 8, fontWeight: 700 }}>
+              {t("title")}
             </h1>
             <p style={{ color: "var(--ink-2)" }}>
-              Gérez les prospects, validez les dossiers et pilotez l&apos;accompagnement d&apos;investissement immobilier.
+              {t("subtitle")}
             </p>
           </div>
-          <button
-            onClick={openModal}
-            className="btn btn-primary"
-          >
-            <Icon name="plus" size={14} /> Nouveau Dossier
+          <button onClick={openModal} className="btn btn-primary">
+            <Icon name="plus" size={14} /> {t("newDossier")}
           </button>
         </div>
 
@@ -305,25 +281,19 @@ export default function AdminDashboardPage() {
         {successCreds && (
           <div
             className="card card-dark"
-            style={{
-              padding: "20px 24px",
-              marginBottom: 24,
-              borderLeft: "4px solid var(--gold)",
-              background: "var(--bg-dark)",
-              color: "white"
-            }}
+            style={{ padding: "20px 24px", marginBottom: 24, borderLeft: "4px solid var(--gold)", background: "var(--bg-dark)", color: "white" }}
           >
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
               <div>
                 <h4 style={{ color: "var(--gold)", fontSize: 16, marginBottom: 6, fontWeight: 700 }}>
-                  🎉 Dossier et compte client créés avec succès !
+                  {t("successTitle")}
                 </h4>
                 <p style={{ fontSize: 13, color: "rgba(255,255,255,0.8)", marginBottom: 12 }}>
-                  Le client a été inscrit avec les accès ci-dessous. Un mail automatique d&apos;accueil a été simulé.
+                  {t("successDesc")}
                 </p>
                 <div style={{ display: "flex", gap: 24, fontSize: 13, fontFamily: "var(--mono)", background: "rgba(255,255,255,0.06)", padding: "10px 14px", borderRadius: 2 }}>
-                  <span><strong>Identifiant :</strong> {successCreds.email}</span>
-                  <span><strong>Mot de passe temporaire :</strong> {successCreds.password}</span>
+                  <span><strong>{t("identifier")}</strong> {successCreds.email}</span>
+                  <span><strong>{t("tempPassword")}</strong> {successCreds.password}</span>
                 </div>
               </div>
               <button
@@ -337,86 +307,40 @@ export default function AdminDashboardPage() {
         )}
 
         {/* KPIs */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(4, 1fr)",
-            gap: 16,
-            marginBottom: 32,
-          }}
-        >
-          <KPICard
-            label="Dossiers actifs"
-            value={kpis.actifs.toString()}
-            icon="folder"
-          />
-          <KPICard
-            label="En attente client"
-            value={kpis.attente.toString()}
-            icon="clock"
-            accent="warning"
-          />
-          <KPICard
-            label="Dossiers clôturés"
-            value={kpis.cloture.toString()}
-            icon="check-circle"
-            accent="success"
-          />
-          <KPICard
-            label="Volume Transactions"
-            value={formatEuro(kpis.totalMontant)}
-            icon="trending-up"
-          />
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 32 }}>
+          <KPICard label={t("kpi.activeDossiers")} value={kpis.actifs.toString()} icon="folder" />
+          <KPICard label={t("kpi.waitingClient")} value={kpis.attente.toString()} icon="clock" accent="warning" />
+          <KPICard label={t("kpi.closedDossiers")} value={kpis.cloture.toString()} icon="check-circle" accent="success" />
+          <KPICard label={t("kpi.transactionVolume")} value={formatEuro(kpis.totalMontant)} icon="trending-up" />
         </div>
 
-        {/* Filters and Search Bar */}
+        {/* Search & Filter */}
         <div className="card" style={{ padding: "20px 24px", marginBottom: 20 }}>
           <div style={{ display: "flex", gap: 16, flexWrap: "wrap" }}>
             <div
               style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 8,
-                padding: "8px 12px",
-                background: "var(--bg-light)",
-                border: "1px solid var(--border)",
-                borderRadius: 2,
-                flex: 1,
-                minWidth: 260
+                display: "flex", alignItems: "center", gap: 8, padding: "8px 12px",
+                background: "var(--bg-light)", border: "1px solid var(--border)", borderRadius: 2,
+                flex: 1, minWidth: 260
               }}
             >
               <Icon name="search" size={14} style={{ color: "var(--ink-3)" }} />
               <input
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Rechercher par client, email, titre..."
-                style={{
-                  border: "none",
-                  outline: "none",
-                  background: "transparent",
-                  fontSize: 13,
-                  width: "100%",
-                  color: "var(--ink)"
-                }}
+                placeholder={t("search")}
+                style={{ border: "none", outline: "none", background: "transparent", fontSize: 13, width: "100%", color: "var(--ink)" }}
               />
             </div>
 
             <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <span style={{ fontSize: 13, color: "var(--ink-2)", fontWeight: 600 }}>Statut :</span>
+              <span style={{ fontSize: 13, color: "var(--ink-2)", fontWeight: 600 }}>{t("statusFilter")}</span>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                style={{
-                  padding: "8px 12px",
-                  border: "1px solid var(--border)",
-                  borderRadius: 2,
-                  fontSize: 13,
-                  background: "var(--bg-light)",
-                  outline: "none",
-                  color: "var(--ink)"
-                }}
+                style={{ padding: "8px 12px", border: "1px solid var(--border)", borderRadius: 2, fontSize: 13, background: "var(--bg-light)", outline: "none", color: "var(--ink)" }}
               >
-                <option value="all">Tous les statuts</option>
+                <option value="all">{t("allStatuses")}</option>
                 {Object.entries(DOSSIER_STATUT_LABEL).map(([key, label]) => (
                   <option key={key} value={key}>{label}</option>
                 ))}
@@ -428,134 +352,94 @@ export default function AdminDashboardPage() {
         {/* Dossiers List */}
         <div className="card" style={{ padding: "24px 32px", minHeight: 280 }}>
           <div style={{ marginBottom: 20 }}>
-            <h3 style={{ fontSize: 18, fontWeight: 700 }}>Dossiers ({filteredDossiers.length})</h3>
+            <h3 style={{ fontSize: 18, fontWeight: 700 }}>{t("dossiers")} ({filteredDossiers.length})</h3>
           </div>
 
           <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch", maxWidth: "100%" }}>
-          <table
-            style={{
-              width: "100%",
-              minWidth: 720,
-              textAlign: "left",
-              borderCollapse: "collapse",
-            }}
-          >
-            <thead>
-              <tr
-                style={{
-                  borderBottom: "1px solid var(--border)",
-                  color: "var(--ink-3)",
-                  fontSize: 12,
-                  textTransform: "uppercase",
-                  letterSpacing: "0.05em",
-                }}
-              >
-                <th style={{ paddingBottom: 12, fontWeight: 600 }}>Réf. Dossier</th>
-                <th style={{ paddingBottom: 12, fontWeight: 600 }}>Client</th>
-                <th style={{ paddingBottom: 12, fontWeight: 600 }}>Type de projet</th>
-                <th style={{ paddingBottom: 12, fontWeight: 600 }}>Montant</th>
-                <th style={{ paddingBottom: 12, fontWeight: 600 }}>Date création</th>
-                <th style={{ paddingBottom: 12, fontWeight: 600 }}>Statut</th>
-                <th style={{ paddingBottom: 12, fontWeight: 600 }}>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {isLoading ? (
-                <tr>
-                  <td colSpan={7} style={{ textAlign: "center", padding: "40px 0", color: "var(--ink-3)" }}>
-                    Chargement des dossiers en temps réel...
-                  </td>
+            <table style={{ width: "100%", minWidth: 720, textAlign: "left", borderCollapse: "collapse" }}>
+              <thead>
+                <tr style={{ borderBottom: "1px solid var(--border)", color: "var(--ink-3)", fontSize: 12, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                  <th style={{ paddingBottom: 12, fontWeight: 600 }}>{t("tableRef")}</th>
+                  <th style={{ paddingBottom: 12, fontWeight: 600 }}>{t("tableClient")}</th>
+                  <th style={{ paddingBottom: 12, fontWeight: 600 }}>{t("tableProjectType")}</th>
+                  <th style={{ paddingBottom: 12, fontWeight: 600 }}>{t("tableAmount")}</th>
+                  <th style={{ paddingBottom: 12, fontWeight: 600 }}>{t("tableCreatedAt")}</th>
+                  <th style={{ paddingBottom: 12, fontWeight: 600 }}>{t("tableStatus")}</th>
+                  <th style={{ paddingBottom: 12, fontWeight: 600 }}>{t("tableAction")}</th>
                 </tr>
-              ) : filteredDossiers.length === 0 ? (
-                <tr>
-                  <td
-                    colSpan={7}
-                    style={{
-                      textAlign: "center",
-                      padding: "40px 0",
-                      color: "var(--ink-3)",
-                    }}
-                  >
-                    Aucun dossier trouvé correspondant aux critères.
-                  </td>
-                </tr>
-              ) : (
-                filteredDossiers.map((d) => (
-                  <tr
-                    key={d.id}
-                    style={{
-                      borderBottom: "1px solid var(--border-soft)",
-                      fontSize: 14,
-                    }}
-                  >
-                    <td
-                      style={{
-                        padding: "16px 0",
-                        fontWeight: 600,
-                        color: "var(--ink)",
-                      }}
-                    >
-                      {((d.id && typeof d.id === 'string' && d.id.includes('-')) ? d.id.split('-')[0] : (d.id || 'N/A')).toUpperCase()}
-                    </td>
-                    <td style={{ padding: "16px 0", color: "var(--ink-2)" }}>
-                      {d.client ? (
-                        <div>
-                          <strong>{d.client.prenom} {d.client.nom}</strong>
-                          <div style={{ fontSize: 11, color: "var(--ink-3)", marginTop: 2 }}>{d.client.email}</div>
-                        </div>
-                      ) : (
-                        "Client Inconnu"
-                      )}
-                    </td>
-                    <td style={{ padding: "16px 0", color: "var(--ink-2)" }}>
-                      <div>
-                        <strong>{d.titre}</strong>
-                        <div style={{ fontSize: 11, color: "var(--ink-3)", marginTop: 2 }}>{d.type_service}</div>
-                      </div>
-                    </td>
-                    <td style={{ padding: "16px 0", color: "var(--ink)", fontWeight: 600 }}>
-                      {d.montant ? formatEuro(d.montant) : "-- €"}
-                    </td>
-                    <td style={{ padding: "16px 0", color: "var(--ink-3)" }}>
-                      {new Date(d.created_at).toLocaleDateString("fr-FR")}
-                    </td>
-                    <td style={{ padding: "16px 0" }}>
-                      <StatusBadge status={d.statut} />
-                    </td>
-                    <td style={{ padding: "16px 0" }}>
-                      <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-                        <Link
-                          href={`/${locale}/dossiers/${d.id}`}
-                          className="btn btn-sm btn-secondary"
-                          style={{ padding: "6px 12px", fontSize: 12, display: "inline-flex" }}
-                        >
-                          Gérer
-                        </Link>
-                        <button
-                          onClick={() => setDossierToDelete(d)}
-                          style={{
-                            background: "rgba(220,38,38,0.08)",
-                            border: "1px solid rgba(220,38,38,0.25)",
-                            borderRadius: 4,
-                            color: "#dc2626",
-                            cursor: "pointer",
-                            padding: "6px 8px",
-                            display: "inline-flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            transition: "all 0.15s",
-                          }}
-                          title="Supprimer ce dossier"
-                        >
-                          <Icon name="x" size={13} />
-                        </button>
-                      </div>
+              </thead>
+              <tbody>
+                {isLoading ? (
+                  <tr>
+                    <td colSpan={7} style={{ textAlign: "center", padding: "40px 0", color: "var(--ink-3)" }}>
+                      {t("loadingDossiers")}
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : filteredDossiers.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} style={{ textAlign: "center", padding: "40px 0", color: "var(--ink-3)" }}>
+                      {t("noDossierFound")}
+                    </td>
+                  </tr>
+                ) : (
+                  filteredDossiers.map((d) => (
+                    <tr key={d.id} style={{ borderBottom: "1px solid var(--border-soft)", fontSize: 14 }}>
+                      <td style={{ padding: "16px 0", fontWeight: 600, color: "var(--ink)" }}>
+                        {((d.id && typeof d.id === 'string' && d.id.includes('-')) ? d.id.split('-')[0] : (d.id || 'N/A')).toUpperCase()}
+                      </td>
+                      <td style={{ padding: "16px 0", color: "var(--ink-2)" }}>
+                        {d.client ? (
+                          <div>
+                            <strong>{d.client.prenom} {d.client.nom}</strong>
+                            <div style={{ fontSize: 11, color: "var(--ink-3)", marginTop: 2 }}>{d.client.email}</div>
+                          </div>
+                        ) : (
+                          t("unknownClient")
+                        )}
+                      </td>
+                      <td style={{ padding: "16px 0", color: "var(--ink-2)" }}>
+                        <div>
+                          <strong>{d.titre}</strong>
+                          <div style={{ fontSize: 11, color: "var(--ink-3)", marginTop: 2 }}>{d.type_service}</div>
+                        </div>
+                      </td>
+                      <td style={{ padding: "16px 0", color: "var(--ink)", fontWeight: 600 }}>
+                        {d.montant ? formatEuro(d.montant) : "-- €"}
+                      </td>
+                      <td style={{ padding: "16px 0", color: "var(--ink-3)" }}>
+                        {new Date(d.created_at).toLocaleDateString("fr-FR")}
+                      </td>
+                      <td style={{ padding: "16px 0" }}>
+                        <StatusBadge status={d.statut} />
+                      </td>
+                      <td style={{ padding: "16px 0" }}>
+                        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                          <Link
+                            href={`/${locale}/dossiers/${d.id}`}
+                            className="btn btn-sm btn-secondary"
+                            style={{ padding: "6px 12px", fontSize: 12, display: "inline-flex" }}
+                          >
+                            {t("manage")}
+                          </Link>
+                          <button
+                            onClick={() => setDossierToDelete(d)}
+                            style={{
+                              background: "rgba(220,38,38,0.08)", border: "1px solid rgba(220,38,38,0.25)",
+                              borderRadius: 4, color: "#dc2626", cursor: "pointer",
+                              padding: "6px 8px", display: "inline-flex", alignItems: "center",
+                              justifyContent: "center", transition: "all 0.15s",
+                            }}
+                            title={t("deleteDefinitely")}
+                          >
+                            <Icon name="x" size={13} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
@@ -564,36 +448,24 @@ export default function AdminDashboardPage() {
       {isModalOpen && (
         <div
           style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: "rgba(11, 19, 43, 0.45)",
-            backdropFilter: "blur(4px)",
-            zIndex: 100,
-            display: "flex",
-            justifyContent: "flex-end"
+            position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
+            background: "rgba(11, 19, 43, 0.45)", backdropFilter: "blur(4px)",
+            zIndex: 100, display: "flex", justifyContent: "flex-end"
           }}
         >
           <div
             className="page-fade"
             style={{
-              width: 480,
-              background: "white",
-              height: "100%",
-              boxShadow: "-10px 0 40px rgba(0,0,0,0.15)",
-              display: "flex",
-              flexDirection: "column",
-              borderLeft: "1px solid var(--border)"
+              width: 480, background: "white", height: "100%",
+              boxShadow: "-10px 0 40px rgba(0,0,0,0.15)", display: "flex",
+              flexDirection: "column", borderLeft: "1px solid var(--border)"
             }}
           >
-            {/* Modal Header */}
             <div style={{ padding: 24, borderBottom: "1px solid var(--border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div>
-                <h3 style={{ fontSize: 18, fontWeight: 700 }}>Créer un nouveau dossier</h3>
+                <h3 style={{ fontSize: 18, fontWeight: 700 }}>{t("createDossierTitle")}</h3>
                 <p style={{ fontSize: 12, color: "var(--ink-3)", marginTop: 4 }}>
-                  Inscrit le client et ouvre un dossier d&apos;accompagnement.
+                  {t("createDossierDesc")}
                 </p>
               </div>
               <button
@@ -604,56 +476,47 @@ export default function AdminDashboardPage() {
               </button>
             </div>
 
-            {/* Modal Body / Form */}
             <form onSubmit={handleCreateDossier} style={{ flex: 1, overflowY: "auto", padding: 24, display: "flex", flexDirection: "column", gap: 18 }}>
               {/* Client Section */}
               <div style={{ borderBottom: "1px solid var(--border-soft)", paddingBottom: 14 }}>
                 <h4 style={{ fontSize: 13, color: "var(--gold)", textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: 700, marginBottom: 12 }}>
-                  1. Informations du client
+                  {t("clientSection")}
                 </h4>
                 <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
                   <button
                     type="button"
                     onClick={() => setClientMode("new")}
                     style={{
-                      flex: 1,
-                      padding: "8px 12px",
-                      fontSize: 12,
-                      fontWeight: 600,
-                      borderRadius: 4,
-                      cursor: "pointer",
+                      flex: 1, padding: "8px 12px", fontSize: 12, fontWeight: 600,
+                      borderRadius: 4, cursor: "pointer",
                       border: "1px solid " + (clientMode === "new" ? "var(--gold)" : "var(--border)"),
                       background: clientMode === "new" ? "rgba(181, 147, 86, 0.1)" : "transparent",
                       color: clientMode === "new" ? "var(--gold)" : "var(--ink-3)",
                       transition: "all 0.2s"
                     }}
                   >
-                    Nouveau client
+                    {t("newClient")}
                   </button>
                   <button
                     type="button"
                     onClick={() => setClientMode("existing")}
                     style={{
-                      flex: 1,
-                      padding: "8px 12px",
-                      fontSize: 12,
-                      fontWeight: 600,
-                      borderRadius: 4,
-                      cursor: "pointer",
+                      flex: 1, padding: "8px 12px", fontSize: 12, fontWeight: 600,
+                      borderRadius: 4, cursor: "pointer",
                       border: "1px solid " + (clientMode === "existing" ? "var(--gold)" : "var(--border)"),
                       background: clientMode === "existing" ? "rgba(181, 147, 86, 0.1)" : "transparent",
                       color: clientMode === "existing" ? "var(--gold)" : "var(--ink-3)",
                       transition: "all 0.2s"
                     }}
                   >
-                    Client existant
+                    {t("existingClient")}
                   </button>
                 </div>
 
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                   {clientMode === "existing" && (
                     <div>
-                      <label style={{ fontSize: 11, fontWeight: 600, color: "var(--ink-2)", display: "block", marginBottom: 4 }}>Sélectionner le client</label>
+                      <label style={{ fontSize: 11, fontWeight: 600, color: "var(--ink-2)", display: "block", marginBottom: 4 }}>{t("selectClient")}</label>
                       <select
                         value={selectedClientId}
                         onChange={(e) => setSelectedClientId(e.target.value)}
@@ -661,7 +524,7 @@ export default function AdminDashboardPage() {
                         style={{ width: "100%", background: "var(--bg-light)", padding: "8px 10px", fontSize: 13, border: "1px solid var(--border)" }}
                         required
                       >
-                        <option value="">-- Choisir un client --</option>
+                        <option value="">{t("chooseClient")}</option>
                         {allClients.map((c) => (
                           <option key={c.id} value={c.id}>
                             {c.prenom} {c.nom} ({c.email})
@@ -727,11 +590,11 @@ export default function AdminDashboardPage() {
               {/* Dossier Section */}
               <div>
                 <h4 style={{ fontSize: 13, color: "var(--gold)", textTransform: "uppercase", letterSpacing: "0.08em", fontWeight: 700, marginBottom: 12 }}>
-                  2. Détails du projet
+                  {t("dossierSection")}
                 </h4>
                 <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                   <div>
-                    <label style={{ fontSize: 11, fontWeight: 600, color: "var(--ink-2)", display: "block", marginBottom: 4 }}>Titre du dossier</label>
+                    <label style={{ fontSize: 11, fontWeight: 600, color: "var(--ink-2)", display: "block", marginBottom: 4 }}>{t("dossierTitle")}</label>
                     <input
                       value={formTitre}
                       onChange={(e) => setFormTitre(e.target.value)}
@@ -742,16 +605,16 @@ export default function AdminDashboardPage() {
                     />
                   </div>
                   <div>
-                    <label style={{ fontSize: 11, fontWeight: 600, color: "var(--ink-2)", display: "block", marginBottom: 4 }}>Type d&apos;accompagnement</label>
+                    <label style={{ fontSize: 11, fontWeight: 600, color: "var(--ink-2)", display: "block", marginBottom: 4 }}>{t("serviceType")}</label>
                     <select
                       value={formTypeService}
                       onChange={(e) => setFormTypeService(e.target.value)}
                       style={{ width: "100%", padding: "8px 10px", fontSize: 13, border: "1px solid var(--border)", background: "var(--bg-light)", outline: "none", color: "var(--ink)" }}
                     >
                       <option value="Acquisition Immobilière - Dubaï">Acquisition Immobilière - Dubaï</option>
-                      <option value="Structuration Corporate & ADGC">Structuration Corporate & ADGC</option>
-                      <option value="Audit & Due Diligence Juridique">Audit & Due Diligence Juridique</option>
-                      <option value="Succession & Planification Patrimoniale">Succession & Planification Patrimoniale</option>
+                      <option value="Structuration Corporate & ADGC">Structuration Corporate &amp; ADGC</option>
+                      <option value="Audit & Due Diligence Juridique">Audit &amp; Due Diligence Juridique</option>
+                      <option value="Succession & Planification Patrimoniale">Succession &amp; Planification Patrimoniale</option>
                     </select>
                   </div>
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
@@ -767,7 +630,7 @@ export default function AdminDashboardPage() {
                       />
                     </div>
                     <div>
-                      <label style={{ fontSize: 11, fontWeight: 600, color: "var(--ink-2)", display: "block", marginBottom: 4 }}>Statut Initial</label>
+                      <label style={{ fontSize: 11, fontWeight: 600, color: "var(--ink-2)", display: "block", marginBottom: 4 }}>{t("initialStatus")}</label>
                       <select
                         value={formStatut}
                         onChange={(e) => setFormStatut(e.target.value as DossierStatut)}
@@ -791,7 +654,7 @@ export default function AdminDashboardPage() {
                   style={{ flex: 1, justifyContent: "center" }}
                   disabled={isSubmitting}
                 >
-                  Annuler
+                  {tCommon("cancel")}
                 </button>
                 <button
                   type="submit"
@@ -799,7 +662,7 @@ export default function AdminDashboardPage() {
                   style={{ flex: 1, justifyContent: "center" }}
                   disabled={isSubmitting}
                 >
-                  {isSubmitting ? "Création en cours..." : "Créer le dossier"}
+                  {isSubmitting ? t("creating") : t("createDossierBtn")}
                 </button>
               </div>
             </form>
@@ -807,48 +670,36 @@ export default function AdminDashboardPage() {
         </div>
       )}
 
-      {/* ── Modal de confirmation de suppression ── */}
+      {/* Delete Confirmation Modal */}
       {dossierToDelete && (
         <div
           style={{
             position: "fixed", top: 0, left: 0, right: 0, bottom: 0,
-            background: "rgba(11, 19, 43, 0.55)",
-            backdropFilter: "blur(6px)",
-            zIndex: 200,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
+            background: "rgba(11, 19, 43, 0.55)", backdropFilter: "blur(6px)",
+            zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center",
           }}
         >
           <div
             className="page-fade"
-            style={{
-              background: "white",
-              borderRadius: 6,
-              padding: 36,
-              width: 460,
-              boxShadow: "0 24px 64px rgba(0,0,0,0.18)",
-              border: "1px solid var(--border)",
-            }}
+            style={{ background: "white", borderRadius: 6, padding: 36, width: 460, boxShadow: "0 24px 64px rgba(0,0,0,0.18)", border: "1px solid var(--border)" }}
           >
             <div style={{ display: "flex", alignItems: "flex-start", gap: 16, marginBottom: 24 }}>
               <div
                 style={{
                   width: 44, height: 44, borderRadius: "50%",
-                  background: "rgba(220,38,38,0.1)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  flexShrink: 0,
+                  background: "rgba(220,38,38,0.1)", display: "flex",
+                  alignItems: "center", justifyContent: "center", flexShrink: 0,
                 }}
               >
                 <Icon name="alert" size={20} style={{ color: "#dc2626" }} />
               </div>
               <div>
                 <h3 style={{ fontSize: 17, fontWeight: 700, color: "var(--ink)", marginBottom: 6 }}>
-                  Supprimer ce dossier ?
+                  {t("confirmDeleteTitle")}
                 </h3>
                 <p style={{ fontSize: 13, color: "var(--ink-2)", lineHeight: 1.6 }}>
                   Vous êtes sur le point de supprimer définitivement le dossier{" "}
-                  <strong style={{ color: "var(--ink)" }}>"{dossierToDelete.titre}"</strong>{" "}
+                  <strong style={{ color: "var(--ink)" }}>&quot;{dossierToDelete.titre}&quot;</strong>{" "}
                   {dossierToDelete.client && (
                     <>
                       de{" "}
@@ -859,9 +710,9 @@ export default function AdminDashboardPage() {
                   )}.
                   <br />
                   <span style={{ color: "#dc2626", fontWeight: 600 }}>
-                    Cette action est irréversible
+                    {t("irreversible")}
                   </span>{" "}
-                  et supprimera tous les documents, messages et factures associés.
+                  — supprimera tous les documents, messages et factures associés.
                 </p>
               </div>
             </div>
@@ -872,30 +723,23 @@ export default function AdminDashboardPage() {
                 style={{ flex: 1, justifyContent: "center" }}
                 disabled={isDeleting}
               >
-                Annuler
+                {t("../common.cancel")}
               </button>
               <button
                 onClick={handleDeleteDossier}
                 disabled={isDeleting}
                 style={{
-                  flex: 1,
-                  padding: "11px 20px",
+                  flex: 1, padding: "11px 20px",
                   background: isDeleting ? "#fca5a5" : "#dc2626",
-                  color: "white",
-                  border: "none",
-                  borderRadius: 4,
-                  fontSize: 13,
-                  fontWeight: 700,
+                  color: "white", border: "none", borderRadius: 4,
+                  fontSize: 13, fontWeight: 700,
                   cursor: isDeleting ? "not-allowed" : "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 8,
-                  transition: "background 0.15s",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  gap: 8, transition: "background 0.15s",
                 }}
               >
                 <Icon name="x" size={13} />
-                {isDeleting ? "Suppression..." : "Supprimer définitivement"}
+                {isDeleting ? t("deleting") : t("deleteDefinitely")}
               </button>
             </div>
           </div>

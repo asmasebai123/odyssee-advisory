@@ -11,10 +11,21 @@ export async function sendDossierCreatedEmail(to: string, clientName: string, do
   if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY.includes("your_resend_api_key")) return { success: false, message: "No API Key" };
   try {
     const credsHtml = tempPassword 
-      ? `<div style="background: #f7f9fa; padding: 15px; border: 1px solid #e3e8ec; border-radius: 4px; margin: 20px 0;">
-          <p style="margin: 0 0 8px 0; font-size: 14px; color: #2C3E5C;"><strong>Voici vos accès de connexion :</strong></p>
-          <p style="margin: 0 0 4px 0; font-size: 13px; color: #555;"><strong>Identifiant (Email) :</strong> ${to}</p>
-          <p style="margin: 0; font-size: 13px; color: #555;"><strong>Mot de passe temporaire :</strong> ${tempPassword}</p>
+      ? `<div style="background-color: #FAF8F5; border-left: 4px solid #B8965A; padding: 20px 24px; border-radius: 6px; margin: 28px 0;">
+          <h4 style="margin: 0 0 12px 0; font-size: 14px; color: #1E293B; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">Vos accès de connexion sécurisés :</h4>
+          <table style="width: 100%; border-collapse: collapse; font-size: 13.5px;">
+            <tr>
+              <td style="padding: 6px 0; color: #64748B; width: 140px;"><strong>Identifiant (Email) :</strong></td>
+              <td style="padding: 6px 0; color: #1E293B; font-family: monospace; font-weight: 700;">${to}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; color: #64748B;"><strong>Mot de passe temporaire :</strong></td>
+              <td style="padding: 6px 0; color: #B8965A; font-family: monospace; font-weight: 700; letter-spacing: 0.05em;">${tempPassword}</td>
+            </tr>
+          </table>
+          <p style="margin: 14px 0 0 0; font-size: 11.5px; color: #94A3B8; font-style: italic; line-height: 1.4;">
+            * Par mesure de sécurité, nous vous conseillons vivement de modifier ce mot de passe temporaire dès votre première connexion.
+          </p>
          </div>`
       : "";
 
@@ -23,18 +34,47 @@ export async function sendDossierCreatedEmail(to: string, clientName: string, do
       to: [to],
       subject: `Ouverture de votre dossier - Odyssée Advisory`,
       html: `
-        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 5px;">
-          <h2 style="color: #2C3E5C; border-bottom: 2px solid #B8965A; padding-bottom: 10px;">Odyssée Advisory</h2>
-          <p>Bonjour <strong>${clientName}</strong>,</p>
-          <p>Nous avons le plaisir de vous informer que votre dossier d'investissement immobilier <strong>"${dossierTitle}"</strong> a été officiellement ouvert dans notre cabinet.</p>
-          ${credsHtml}
-          <p>Vous pouvez dès à présent vous connecter à votre espace sécurisé pour suivre son avancement et échanger avec votre avocat conseil.</p>
-          <div style="margin: 30px 0; text-align: center;">
-            <a href="https://odyssee-advisory.com/login" style="background-color: #B8965A; color: white; padding: 12px 24px; text-decoration: none; font-weight: bold; border-radius: 3px; display: inline-block;">Accéder à mon Espace</a>
+        <div style="background-color: #F8FAFC; padding: 40px 20px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+          <div style="max-width: 580px; margin: 0 auto; background-color: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.025); overflow: hidden;">
+            
+            <!-- Header -->
+            <div style="background-color: #1E293B; padding: 32px; text-align: center; border-bottom: 3px solid #B8965A;">
+              <span style="font-size: 22px; font-weight: 800; letter-spacing: 0.15em; color: #FFFFFF; text-transform: uppercase;">
+                ODYSSÉE <span style="color: #B8965A;">ADVISORY</span>
+              </span>
+              <p style="font-size: 11px; color: #94A3B8; margin: 6px 0 0 0; text-transform: uppercase; letter-spacing: 0.2em; font-weight: 600;">Cabinet d'avocats & Conseil</p>
+            </div>
+            
+            <!-- Content -->
+            <div style="padding: 40px 32px; line-height: 1.6; color: #334155; font-size: 15px;">
+              <p style="margin-top: 0; font-size: 16px; color: #1E293B;">Bonjour <strong>${clientName}</strong>,</p>
+              
+              <p>Nous avons le plaisir de vous informer que votre dossier d'investissement immobilier <strong>"${dossierTitle}"</strong> a été officiellement ouvert au sein de notre cabinet.</p>
+              
+              ${credsHtml}
+              
+              <p>Votre espace privé vous permettra de suivre en temps réel l'avancement de vos démarches, d'accéder aux pièces juridiques de votre dossier, et d'échanger directement avec votre avocat via notre messagerie sécurisée.</p>
+              
+              <div style="margin: 36px 0; text-align: center;">
+                <a href="https://odyssee-advisory.com/login" style="background-color: #B8965A; color: #FFFFFF; padding: 14px 28px; text-decoration: none; font-weight: 700; border-radius: 6px; display: inline-block; font-size: 14px; letter-spacing: 0.05em; box-shadow: 0 4px 10px rgba(184, 150, 90, 0.25);">
+                  Accéder à mon Espace Privé
+                </a>
+              </div>
+              
+              <p style="margin-bottom: 0;">
+                Restant à votre entière disposition,<br/>
+                <span style="color: #1E293B; font-weight: 600;">L'équipe Odyssée Advisory</span>
+              </p>
+            </div>
+            
+            <!-- Footer -->
+            <div style="background-color: #F8FAFC; padding: 24px 32px; border-top: 1px solid #E2E8F0; text-align: center; font-size: 11.5px; color: #64748B; line-height: 1.5;">
+              Cet email est envoyé automatiquement par notre plateforme sécurisée. Merci de ne pas y répondre directement.<br/>
+              Pour toute question ou assistance, veuillez écrire à notre secrétariat.<br/>
+              <span style="display: block; margin-top: 12px; font-weight: 600; color: #94A3B8;">© ${new Date().getFullYear()} Odyssée Advisory. Tous droits réservés.</span>
+            </div>
+            
           </div>
-          <p style="font-size: 12px; color: #777; border-top: 1px solid #eee; padding-top: 15px; margin-top: 30px;">
-            Cet email est envoyé automatiquement, merci de ne pas y répondre directement. Pour toute question, veuillez utiliser la messagerie sécurisée de votre espace client.
-          </p>
         </div>
       `
     });

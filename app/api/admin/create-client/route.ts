@@ -3,6 +3,27 @@ import { createClient } from "@supabase/supabase-js";
 import { requireAvocat } from "@/lib/auth-guard";
 import { sendDossierCreatedEmail } from "@/lib/resend";
 
+function generateSecurePassword(length = 12): string {
+  const lowercase = "abcdefghijklmnopqrstuvwxyz";
+  const uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  const digits = "0123456789";
+  const special = "!@#$%&*";
+  
+  const allChars = lowercase + uppercase + digits + special;
+  let password = "";
+  
+  password += lowercase[Math.floor(Math.random() * lowercase.length)];
+  password += uppercase[Math.floor(Math.random() * uppercase.length)];
+  password += digits[Math.floor(Math.random() * digits.length)];
+  password += special[Math.floor(Math.random() * special.length)];
+  
+  for (let i = 4; i < length; i++) {
+    password += allChars[Math.floor(Math.random() * allChars.length)];
+  }
+  
+  return password.split('').sort(() => Math.random() - 0.5).join('');
+}
+
 /**
  * POST /api/admin/create-client — crée un nouvel utilisateur client dans Supabase Auth,
  * insère son profil, crée son dossier et son premier document requis de manière atomique.
@@ -48,6 +69,7 @@ export async function POST(request: NextRequest) {
 
     let userId = "";
     let isExistingUser = false;
+    let password = "";
 
     // 1. Vérifier si l'utilisateur existe déjà dans public.users
     const { data: existingUsers } = await supabase
@@ -60,7 +82,7 @@ export async function POST(request: NextRequest) {
       isExistingUser = true;
     } else {
       // 2. Créer le compte dans Supabase Auth
-      const password = "password123";
+      password = generateSecurePassword();
       const { data: authData, error: authError } = await supabase.auth.admin.createUser({
         email,
         password,
@@ -140,7 +162,7 @@ export async function POST(request: NextRequest) {
           email,
           `${prenom} ${nom}`,
           titre,
-          isExistingUser ? undefined : "password123"
+          isExistingUser ? undefined : password
         );
       } catch (emailErr) {
         console.error("Email send error (non-fatal):", emailErr);
@@ -154,7 +176,8 @@ export async function POST(request: NextRequest) {
       message: isExistingUser 
         ? "Dossier créé pour un client existant." 
         : "Utilisateur client et dossier créés avec succès.",
-      credentials: isExistingUser ? null : { email, password: "password123" }
+      tempPassword: isExistingUser ? null : password,
+      credentials: isExistingUser ? null : { email, password }
     });
 
   } catch (err: any) {

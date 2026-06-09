@@ -176,12 +176,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         .single();
       const { data: avocat } = await admin
         .from("users")
-        .select("email")
+        .select("id, email")
         .eq("role", "avocat")
         .limit(1)
         .maybeSingle();
       const profile = clientProfile as { prenom?: string; nom?: string } | null;
-      const avocatEmail = (avocat as { email?: string } | null)?.email;
+      const avocatEmail = (avocat as { id?: string; email?: string } | null)?.email;
+      const avocatId = (avocat as { id?: string; email?: string } | null)?.id;
       if (avocatEmail) {
         await sendDocumentUploadedEmail(
           avocatEmail,
@@ -190,8 +191,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           blob.name,
         );
       }
+      if (avocatId) {
+        await admin.from("notifications").insert({
+          user_id: avocatId,
+          message: `Le client ${`${profile?.prenom ?? ""} ${profile?.nom ?? ""}`.trim() || "Client"} a déposé le document « ${blob.name} ».`,
+          type: "document",
+          lu: false,
+        });
+      }
     } catch (e) {
-      console.error("doc uploaded email failed:", e);
+      console.error("doc uploaded email/db notification failed:", e);
     }
 
     return NextResponse.json({ success: true, path });

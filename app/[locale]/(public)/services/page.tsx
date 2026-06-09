@@ -1,8 +1,11 @@
+import { useTranslations } from "next-intl";
 import { PublicNavbar } from "@/components/layout/PublicNavbar";
 import { Footer } from "@/components/layout/Footer";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
 export default function ServicesPage() {
+  const t = useTranslations("publicPages.services");
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <PublicNavbar />
@@ -10,10 +13,10 @@ export default function ServicesPage() {
       <main className="flex-1 py-20">
         <div className="container max-w-5xl">
           <h1 className="font-display text-4xl md:text-5xl font-bold text-sidebar-deep mb-6">
-            Nos Services
+            {t("title")}
           </h1>
           <p className="text-xl text-text-muted mb-16 max-w-3xl">
-            Un accompagnement sur-mesure pour sécuriser et optimiser vos projets immobiliers aux Émirats Arabes Unis.
+            {t("subtitle")}
           </p>
 
           <div className="grid gap-8 md:grid-cols-2">
@@ -22,9 +25,9 @@ export default function ServicesPage() {
                 <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-gold/10 text-gold">
                   <span className="font-bold text-lg">01</span>
                 </div>
-                <CardTitle>Audit & Due Diligence</CardTitle>
+                <CardTitle>{t("s1_title")}</CardTitle>
                 <CardDescription className="mt-4 text-base leading-relaxed">
-                  Analyse approfondie des promoteurs immobiliers (track record, santé financière) et des projets (escrow account, autorisations RERA) avant tout engagement.
+                  {t("s1_desc")}
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -34,9 +37,9 @@ export default function ServicesPage() {
                 <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-gold/10 text-gold">
                   <span className="font-bold text-lg">02</span>
                 </div>
-                <CardTitle>Revue de Contrats (SPA)</CardTitle>
+                <CardTitle>{t("s2_title")}</CardTitle>
                 <CardDescription className="mt-4 text-base leading-relaxed">
-                  Lecture et négociation des contrats de vente (Sales and Purchase Agreement) pour protéger vos intérêts et éviter les clauses abusives.
+                  {t("s2_desc")}
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -46,9 +49,9 @@ export default function ServicesPage() {
                 <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-gold/10 text-gold">
                   <span className="font-bold text-lg">03</span>
                 </div>
-                <CardTitle>Structuration Fiscale</CardTitle>
+                <CardTitle>{t("s3_title")}</CardTitle>
                 <CardDescription className="mt-4 text-base leading-relaxed">
-                  Conseil sur la structuration de l&apos;acquisition (en nom propre, via une société offshore ou Freezone) selon votre situation de résident fiscal français ou émirati.
+                  {t("s3_desc")}
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -58,9 +61,9 @@ export default function ServicesPage() {
                 <div className="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-gold/10 text-gold">
                   <span className="font-bold text-lg">04</span>
                 </div>
-                <CardTitle>Succession & Transmission</CardTitle>
+                <CardTitle>{t("s4_title")}</CardTitle>
                 <CardDescription className="mt-4 text-base leading-relaxed">
-                  Mise en place de testaments (DIFC Wills) et stratégies de transmission pour protéger votre patrimoine immobilier aux EAU.
+                  {t("s4_desc")}
                 </CardDescription>
               </CardHeader>
             </Card>

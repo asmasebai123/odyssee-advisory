@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { useRouter, useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Icon } from "@/components/shared/Icon";
 import { OAMark } from "@/components/shared/OAMark";
 import { createBrowserClient } from "@supabase/ssr";
@@ -19,6 +20,8 @@ export default function RegisterPage(): React.ReactElement {
   const router = useRouter();
   const params = useParams();
   const locale = (params?.locale as string) || "fr";
+  const t = useTranslations("register");
+
   const [form, setForm] = React.useState<FormState>({
     prenom: "",
     nom: "",
@@ -42,7 +45,7 @@ export default function RegisterPage(): React.ReactElement {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.consent) {
-      setError("Vous devez accepter les conditions pour continuer.");
+      setError(t("consentRequired"));
       return;
     }
     
@@ -61,7 +64,6 @@ export default function RegisterPage(): React.ReactElement {
     }
 
     if (authData.user) {
-      // Insertion dans la table public.users
       const { error: insertError } = await supabase.from('users').insert({
         id: authData.user.id,
         email: form.email,
@@ -72,8 +74,7 @@ export default function RegisterPage(): React.ReactElement {
       });
 
       if (insertError) {
-        // En cas d'erreur, on affiche mais l'auth est créée (un trigger serait préférable en prod)
-        setError("Erreur lors de la création du profil : " + insertError.message);
+        setError(t("profileError") + insertError.message);
         setIsLoading(false);
         return;
       }
@@ -145,7 +146,7 @@ export default function RegisterPage(): React.ReactElement {
                   letterSpacing: "-0.01em",
                 }}
               >
-                Bienvenue chez{" "}
+                {t("heroTitle")}{" "}
                 <span style={{ fontStyle: "italic", color: "var(--gold)" }}>
                   Odyssée
                 </span>
@@ -160,8 +161,7 @@ export default function RegisterPage(): React.ReactElement {
                   maxWidth: 420,
                 }}
               >
-                Créez votre espace privé. Un avocat associé examinera votre demande
-                sous 24 h ouvrées et reviendra vers vous avec une proposition.
+                {t("heroDesc")}
               </p>
             </div>
           </div>
@@ -180,9 +180,9 @@ export default function RegisterPage(): React.ReactElement {
         >
           <form onSubmit={onSubmit} style={{ width: "100%", maxWidth: 420 }}>
             <div className="rule-gold" />
-            <h2 style={{ fontSize: 30, marginBottom: 8 }}>Demander un accès.</h2>
+            <h2 style={{ fontSize: 30, marginBottom: 8 }}>{t("formTitle")}</h2>
             <p style={{ color: "var(--ink-2)", fontSize: 14, marginBottom: 28 }}>
-              Vos informations restent strictement confidentielles.
+              {t("formSubtitle")}
             </p>
 
             <div
@@ -194,7 +194,7 @@ export default function RegisterPage(): React.ReactElement {
               }}
             >
               <div className="input-wrap">
-                <label htmlFor="prenom">Prénom</label>
+                <label htmlFor="prenom">{t("firstName")}</label>
                 <input
                   id="prenom"
                   className="input-line"
@@ -204,7 +204,7 @@ export default function RegisterPage(): React.ReactElement {
                 />
               </div>
               <div className="input-wrap">
-                <label htmlFor="nom">Nom</label>
+                <label htmlFor="nom">{t("lastName")}</label>
                 <input
                   id="nom"
                   className="input-line"
@@ -216,7 +216,7 @@ export default function RegisterPage(): React.ReactElement {
             </div>
 
             <div className="input-wrap" style={{ marginBottom: 20 }}>
-              <label htmlFor="email">Adresse email</label>
+              <label htmlFor="email">{t("email")}</label>
               <input
                 id="email"
                 className="input-line"
@@ -228,7 +228,7 @@ export default function RegisterPage(): React.ReactElement {
             </div>
 
             <div className="input-wrap" style={{ marginBottom: 20 }}>
-              <label htmlFor="tel">Téléphone</label>
+              <label htmlFor="tel">{t("phone")}</label>
               <input
                 id="tel"
                 className="input-line"
@@ -239,7 +239,7 @@ export default function RegisterPage(): React.ReactElement {
             </div>
 
             <div className="input-wrap" style={{ marginBottom: 24 }}>
-              <label htmlFor="password">Mot de passe</label>
+              <label htmlFor="password">{t("password")}</label>
               <input
                 id="password"
                 className="input-line"
@@ -282,8 +282,7 @@ export default function RegisterPage(): React.ReactElement {
                 )}
               </span>
               <span style={{ lineHeight: 1.5 }}>
-                J&apos;accepte les CGU, la politique de confidentialité ainsi que les
-                conditions de conservation des données (RGPD).
+                {t("consentText")}
               </span>
             </label>
 
@@ -305,7 +304,7 @@ export default function RegisterPage(): React.ReactElement {
               }}
             >
               <Icon name="arrow-right" size={14} />
-              {isLoading ? "Création en cours..." : "Créer mon compte"}
+              {isLoading ? t("creating") : t("createAccount")}
             </button>
 
             <div
@@ -318,16 +317,16 @@ export default function RegisterPage(): React.ReactElement {
                 textAlign: "center",
               }}
             >
-              Vous avez déjà un compte ?{" "}
+              {t("alreadyAccount")}{" "}
               <a
-                href="/login"
+                href={`/${locale}/login`}
                 style={{
                   color: "var(--ink)",
                   fontWeight: 600,
                   borderBottom: "1px solid var(--gold)",
                 }}
               >
-                Se connecter
+                {t("signIn")}
               </a>
             </div>
           </form>

@@ -8,8 +8,12 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { StatusBadge, type StatusKey } from "@/components/shared/StatusBadge";
 import { createBrowserClient } from "@supabase/ssr";
 import { useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 export default function FacturesPage(): React.ReactElement {
+  const tPage = useTranslations("facturesPage");
+  const tNav = useTranslations("navbar");
+  
   const params = useParams();
   const locale = (params?.locale as string) || "fr";
   const [invoices, setInvoices] = React.useState<any[]>([]);
@@ -159,10 +163,10 @@ export default function FacturesPage(): React.ReactElement {
   return (
     <>
       <Navbar
-        title="Factures & paiements"
-        breadcrumb="Espace client · Finance"
+        title={tPage("title")}
+        breadcrumb={tPage("breadcrumb")}
         switchRoleHref="/admin"
-        switchRoleLabel="Vue cabinet"
+        switchRoleLabel={tNav("switchToAvocat")}
       />
 
       <div className="page-fade page-pad">
@@ -177,39 +181,39 @@ export default function FacturesPage(): React.ReactElement {
         >
           <KPICard
             tone="beige"
-            label="Total réglé"
+            label={tPage("totalPaid")}
             value={`${totalPaid.toLocaleString('fr-FR')} €`}
             icon="check-circle"
             accent="gold"
-            delta={{ value: `${paidCount} factures`, label: "réglées au total" }}
+            delta={{ value: tPage("paidCount", { count: paidCount }), label: tPage("paidTotalLabel") }}
           />
           <KPICard
             tone="beige"
-            label="En attente"
+            label={tPage("pending")}
             value={`${totalPending.toLocaleString('fr-FR')} €`}
             icon="clock"
             accent="warning"
             delta={{
-              value: nextPayment ? `Échéance ${new Date(nextPayment.date_echeance).toLocaleDateString('fr-FR')}` : "Aucune",
-              label: "facture en attente"
+              value: nextPayment ? tPage("dueDate", { date: new Date(nextPayment.date_echeance).toLocaleDateString('fr-FR') }) : tPage("unpaidInvoice"),
+              label: tPage("pendingInvoice")
             }}
           />
           <KPICard
             tone="beige"
-            label="Prochain paiement estimé"
+            label={tPage("nextPayment")}
             value={nextPayment ? `${nextPayment.montant.toLocaleString('fr-FR')} €` : "-- €"}
             icon="trending-up"
             accent="gold"
             delta={{
-              value: nextPayment ? nextPayment.libelle : "Aucun",
-              label: "en attente"
+              value: nextPayment ? nextPayment.libelle : tPage("unpaidInvoice"),
+              label: tPage("pending")
             }}
           />
         </div>
 
         <PageHeader
-          eyebrow="Vos factures"
-          title="Factures en cours et récentes"
+          eyebrow={tPage("title")}
+          title={tPage("recentInvoices")}
           action={
             <div style={{ display: "flex", gap: 8 }}>
               <button
@@ -219,10 +223,10 @@ export default function FacturesPage(): React.ReactElement {
                   color: "var(--ink-2)",
                 }}
               >
-                <Icon name="filter" size={12} /> Filtrer
+                <Icon name="filter" size={12} /> {tPage("filter")}
               </button>
               <button className="btn btn-sm btn-secondary">
-                <Icon name="download" size={12} /> Export
+                <Icon name="download" size={12} /> {tPage("export")}
               </button>
             </div>
           }
@@ -239,13 +243,13 @@ export default function FacturesPage(): React.ReactElement {
         >
           {isLoading && invoices.length === 0 && (
             <div style={{ padding: 40, textAlign: "center", color: "var(--ink-3)" }}>
-              Chargement des factures...
+              {tPage("paying")}
             </div>
           )}
 
           {!isLoading && invoices.length === 0 && (
             <div style={{ padding: 40, textAlign: "center", color: "var(--ink-3)" }}>
-              Aucune facture émise pour le moment.
+              {tPage("noPayments")}
             </div>
           )}
 
@@ -297,7 +301,7 @@ export default function FacturesPage(): React.ReactElement {
                       marginBottom: 4,
                     }}
                   >
-                    Émise le
+                    {tPage("emittedOn")}
                   </div>
                   <div style={{ fontSize: 13, fontWeight: 600 }}>
                     {new Date(inv.date_emission).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}
@@ -314,7 +318,7 @@ export default function FacturesPage(): React.ReactElement {
                       marginBottom: 4,
                     }}
                   >
-                    Échéance
+                    {tPage("pending")}
                   </div>
                   <div style={{ fontSize: 13, fontWeight: 600 }}>
                     {new Date(inv.date_echeance).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}
@@ -357,7 +361,7 @@ export default function FacturesPage(): React.ReactElement {
                       style={{ padding: "10px 18px" }}
                       disabled={isPaying === inv.id}
                     >
-                      <Icon name="credit-card" size={14} /> {isPaying === inv.id ? "En cours..." : "Payer maintenant"}
+                      <Icon name="credit-card" size={14} /> {isPaying === inv.id ? tPage("paying") : tPage("payNow")}
                     </button>
                   )}
                   {inv.statut === "payee" && (
@@ -366,7 +370,7 @@ export default function FacturesPage(): React.ReactElement {
                       className="btn btn-sm btn-secondary"
                       style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
                     >
-                      <Icon name="eye" size={14} /> Reçu
+                      <Icon name="eye" size={14} /> {tPage("receipt")}
                     </a>
                   )}
                 </div>
@@ -378,16 +382,16 @@ export default function FacturesPage(): React.ReactElement {
         {/* Payment history */}
         <div className="card" style={{ padding: 0 }}>
           <div style={{ padding: "24px 28px 0" }}>
-            <PageHeader eyebrow="Historique" title="Paiements" />
+            <PageHeader eyebrow={tPage("history")} title={tPage("payments")} />
           </div>
           <table className="table-clean">
             <thead>
               <tr>
-                <th>Référence</th>
-                <th>Date</th>
-                <th>Méthode</th>
-                <th style={{ textAlign: "right" }}>Montant</th>
-                <th>Statut</th>
+                <th>{tPage("reference")}</th>
+                <th>{tPage("date")}</th>
+                <th>{tPage("method")}</th>
+                <th style={{ textAlign: "right" }}>{tPage("amount")}</th>
+                <th>{tPage("status")}</th>
                 <th></th>
               </tr>
             </thead>
@@ -395,7 +399,7 @@ export default function FacturesPage(): React.ReactElement {
               {paidInvoices.length === 0 && (
                 <tr>
                   <td colSpan={6} style={{ textAlign: "center", padding: 20, color: "var(--ink-3)" }}>
-                    Aucun paiement enregistré pour l&apos;instant.
+                    {tPage("noPayments")}
                   </td>
                 </tr>
               )}
@@ -405,7 +409,7 @@ export default function FacturesPage(): React.ReactElement {
                     {h.reference || h.id.split('-')[0].toUpperCase()}
                   </td>
                   <td>{new Date(h.date_emission).toLocaleDateString('fr-FR')}</td>
-                  <td>Virement Bancaire (Simulé)</td>
+                  <td>{tPage("bankTransfer")}</td>
                   <td
                     style={{
                       textAlign: "right",

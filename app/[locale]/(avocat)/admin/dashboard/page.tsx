@@ -4,6 +4,7 @@ import * as React from "react";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Navbar } from "@/components/layout/Navbar";
 import { Icon } from "@/components/shared/Icon";
 import { KPICard } from "@/components/shared/KPICard";
@@ -53,6 +54,8 @@ interface DashboardStats {
 export default function LawyerDashboardPage(): React.ReactElement {
   const params = useParams();
   const locale = (params?.locale as string) || "fr";
+  const t = useTranslations("dashboard.avocat");
+  const tNav = useTranslations("navbar");
 
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -187,10 +190,10 @@ export default function LawyerDashboardPage(): React.ReactElement {
     return (
       <>
         <Navbar
-          title="Vue d'ensemble"
-          breadcrumb="Cabinet · Direction"
+          title={t("title")}
+          breadcrumb={t("breadcrumb")}
           switchRoleHref="/dashboard"
-          switchRoleLabel="Vue client"
+          switchRoleLabel={tNav("switchToClient")}
           initials="PD"
         />
         <div className="page-pad page-fade" style={{ display: "flex", flexDirection: "column", gap: 24 }}>
@@ -247,10 +250,10 @@ export default function LawyerDashboardPage(): React.ReactElement {
     return (
       <>
         <Navbar
-          title="Vue d'ensemble"
-          breadcrumb="Cabinet · Direction"
+          title={t("title")}
+          breadcrumb={t("breadcrumb")}
           switchRoleHref="/dashboard"
-          switchRoleLabel="Vue client"
+          switchRoleLabel={tNav("switchToClient")}
           initials="PD"
         />
         <div className="page-pad page-fade" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "60vh", gap: 16 }}>
@@ -258,9 +261,9 @@ export default function LawyerDashboardPage(): React.ReactElement {
             <Icon name="alert" size={28} />
           </div>
           <h2 style={{ color: "var(--ink)" }}>Une erreur est survenue</h2>
-          <p style={{ color: "var(--ink-3)", maxWidth: 460, textAlign: "center" }}>{error || "Impossible de charger les données du dashboard."}</p>
+          <p style={{ color: "var(--ink-3)", maxWidth: 460, textAlign: "center" }}>{error || t("errorLoading")}</p>
           <button className="btn btn-primary" onClick={() => { setIsLoading(true); fetchStats(); }}>
-            Réessayer
+            {t("retry")}
           </button>
         </div>
       </>
@@ -323,7 +326,7 @@ export default function LawyerDashboardPage(): React.ReactElement {
                 marginBottom: 8,
               }}
             >
-              Cabinet · Lundi 18 mai 2026
+              {t("eyebrowDate")}
             </div>
             <h1
               style={{
@@ -334,7 +337,7 @@ export default function LawyerDashboardPage(): React.ReactElement {
                 letterSpacing: "-0.02em",
               }}
             >
-              Bonjour <span className="gold-italic">Pierre</span>,
+              {t("greeting")} <span className="gold-italic">Pierre</span>,
             </h1>
             <p
               style={{
@@ -345,12 +348,12 @@ export default function LawyerDashboardPage(): React.ReactElement {
                 lineHeight: 1.6,
               }}
             >
-              Vous avez {stats.kpis.dossiersActifs} dossiers actifs et {stats.demandes.length} nouvelles demandes en attente de traitement dans votre boîte d&apos;entrée.
+              {t("summary", { active: stats.kpis.dossiersActifs, requests: stats.demandes.length })}
             </p>
           </div>
           <div style={{ display: "flex", gap: 10, position: "relative", zIndex: 1 }}>
             <Link href={`/${locale}/admin`} className="btn btn-secondary" style={{ borderRadius: 999, borderColor: "var(--gold-line)" }}>
-              <Icon name="folder" size={14} style={{ color: "var(--gold)" }} /> Voir les dossiers
+              <Icon name="folder" size={14} style={{ color: "var(--gold)" }} /> {t("viewDossiers")}
             </Link>
           </div>
         </div>
@@ -365,28 +368,28 @@ export default function LawyerDashboardPage(): React.ReactElement {
           }}
         >
           <KPICard
-            label="Dossiers actifs"
+            label={t("kpi.activeFiles")}
             value={stats.kpis.dossiersActifs.toString()}
             icon="folder"
-            delta={{ value: "+1", label: "ce mois-ci" }}
+            delta={{ value: "+1", label: t("kpi.thisMonth") }}
           />
           <KPICard
-            label="Volume conseillé (YTD)"
+            label={t("kpi.adviceVolume")}
             value={stats.kpis.volumeConseilleYTD}
             icon="trending-up"
-            delta={{ value: "Réel", label: "Volume transactions" }}
+            delta={{ value: t("kpi.real"), label: t("kpi.transactionVolume") }}
           />
           <KPICard
-            label="Honoraires facturés"
+            label={t("kpi.feesBilled")}
             value={stats.kpis.honorairesFactures}
             icon="invoice"
-            delta={{ value: stats.kpis.honorairesPayes + " encaissé", label: "Payé vs Facturé" }}
+            delta={{ value: stats.kpis.honorairesPayes + " " + t("kpi.collected"), label: t("kpi.paidVsBilled") }}
           />
           <KPICard
-            label="Délai moyen / dossier"
+            label={t("kpi.avgTime")}
             value={stats.kpis.delaiMoyen}
             icon="clock"
-            delta={{ value: "Automatique", label: "Calculé sur dossiers clos" }}
+            delta={{ value: t("kpi.automatic"), label: t("kpi.computedOnClosedFiles") }}
           />
         </div>
 
@@ -420,9 +423,9 @@ export default function LawyerDashboardPage(): React.ReactElement {
                     marginBottom: 4,
                   }}
                 >
-                  Honoraires
+                  {t("fees.eyebrow")}
                 </div>
-                <h2 style={{ fontSize: 22 }}>Évolution sur 12 mois</h2>
+                <h2 style={{ fontSize: 22 }}>{t("fees.title")}</h2>
               </div>
               <div style={{ display: "flex", gap: 6 }}>
                 {["12M"].map((p, i) => (
@@ -473,7 +476,7 @@ export default function LawyerDashboardPage(): React.ReactElement {
                     marginTop: 6,
                   }}
                 >
-                  Total des honoraires réglés encaissés
+                  {t("fees.totalCollected")}
                 </div>
               </div>
               <div style={{ marginLeft: "auto", display: "flex", gap: 28 }}>
@@ -487,7 +490,7 @@ export default function LawyerDashboardPage(): React.ReactElement {
                       fontWeight: 600,
                     }}
                   >
-                    Pipeline (Impayé)
+                    {t("fees.pipelineUnpaid")}
                   </div>
                   <div
                     style={{
@@ -511,7 +514,7 @@ export default function LawyerDashboardPage(): React.ReactElement {
                       fontWeight: 600,
                     }}
                   >
-                    Total Facturé
+                    {t("fees.totalBilled")}
                   </div>
                   <div
                     style={{
@@ -567,12 +570,12 @@ export default function LawyerDashboardPage(): React.ReactElement {
                     marginBottom: 4,
                   }}
                 >
-                  Boîte d&apos;entrée
+                  {t("inbox.eyebrow")}
                 </div>
-                <h2 style={{ fontSize: 22 }}>Nouvelles demandes</h2>
+                <h2 style={{ fontSize: 22 }}>{t("inbox.title")}</h2>
               </div>
               <span className="badge badge-gold-solid">
-                {stats.demandes.length} {stats.demandes.length > 1 ? "demandes" : "demande"}
+                {t("inbox.requestCount", { count: stats.demandes.length })}
               </span>
             </div>
 
@@ -1223,7 +1226,7 @@ export default function LawyerDashboardPage(): React.ReactElement {
                   </select>
                 </div>
                 <div style={{ fontSize: 11.5, color: "rgba(255,255,255,0.5)", lineHeight: 1.5 }}>
-                  Un compte sera créé. Le mot de passe temporaire <span style={{ color: "var(--gold)", fontWeight: 700 }}>password123</span> lui sera assigné et expédié dans le mail de bienvenue.
+                  Un compte sera créé. Un mot de passe temporaire sécurisé sera généré automatiquement et lui sera expédié dans le mail de bienvenue.
                 </div>
               </div>
 
